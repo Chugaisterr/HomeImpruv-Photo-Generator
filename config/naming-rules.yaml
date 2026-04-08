@@ -1,0 +1,34 @@
+naming:
+  pattern: "{category}--{subfolder}--{descriptor}--{version}--{stage}.{ext}"
+
+  categories:
+    - hvac
+    - home-security
+    - flooring
+    - windows
+    - walk-in-shower
+
+  subfolders:
+    - hero-page
+    - projects
+    - before-after
+    - products
+
+  stages:
+    - raw
+    - clean
+    - upscaled
+    - corrected
+    - final
+    - generated
+
+  extensions:
+    - jpg
+    - png
+    - webp
+
+  gen_methods:
+    - gen-variation
+    - gen-seasonal
+    - gen-prompt
+    - gen-extend

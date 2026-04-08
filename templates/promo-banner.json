@@ -1,0 +1,10 @@
+{
+  "type": "overlay",
+  "position": "bottom-center",
+  "bg_color": "#1A1A2E",
+  "bg_opacity": 0.8,
+  "text_color": "#FFFFFF",
+  "font_size": 48,
+  "padding": 20,
+  "default_text": "Save up to $500 Today!"
+}

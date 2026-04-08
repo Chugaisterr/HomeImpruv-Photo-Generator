@@ -1,0 +1,21 @@
+{
+  "type": "split",
+  "labels": {
+    "before": {
+      "text": "BEFORE",
+      "position": "top-left",
+      "bg_color": "#333333",
+      "text_color": "#FFFFFF",
+      "font_size": 48,
+      "padding": 16
+    },
+    "after": {
+      "text": "AFTER",
+      "position": "top-right",
+      "bg_color": "#28A745",
+      "text_color": "#FFFFFF",
+      "font_size": 48,
+      "padding": 16
+    }
+  }
+}
