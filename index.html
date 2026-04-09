@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HomeImpruv Photo Processor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root {
     --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a;
@@ -238,7 +239,7 @@
   <div id="resultsSection" style="display:none">
     <div class="results-header">
       <h2>&#10003; Results <span id="resultCount" style="color:var(--text2); font-weight:400; font-size:13px"></span></h2>
-      <button class="btn btn-success" onclick="downloadAll()">&#8595; Download All</button>
+      <button class="btn btn-success" id="downloadZipBtn" onclick="downloadZip()">&#8595; Download ZIP</button>
     </div>
     <div class="result-grid" id="resultGrid"></div>
   </div>
@@ -975,8 +976,31 @@ function downloadOne(i) {
   a.click();
 }
 
-function downloadAll() {
-  results.forEach((_, i) => setTimeout(() => downloadOne(i), i * 400));
+async function downloadZip() {
+  if (!results.length) return;
+  const btn = document.getElementById('downloadZipBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<svg class="spinner" width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="20" stroke-dashoffset="5"/></svg> Packing...`;
+
+  const zip = new JSZip();
+  results.forEach(r => {
+    const binary = atob(r.b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    zip.file(r.name, bytes);
+  });
+
+  const project = document.getElementById('projectName').value.trim() || 'photos';
+  const zipName = `${project.replace(/\s+/g,'-')}_processed.zip`;
+  const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 3 } });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = zipName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+
+  btn.disabled = false;
+  btn.innerHTML = '&#8595; Download ZIP';
 }
 
 function openLightbox(i) {
