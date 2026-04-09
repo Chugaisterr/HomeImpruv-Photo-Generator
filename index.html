@@ -59,7 +59,10 @@
   .thumb-item img { width: 100%; height: 90px; object-fit: cover; display: block; }
   .thumb-name { font-size: 10px; color: var(--text2); padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .thumb-badge { position: absolute; top: 4px; left: 4px; background: rgba(0,0,0,.7); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 8px; font-weight: 600; }
-  .thumb-badge.after { background: rgba(56,217,169,.85); color: #0f1117; }
+  .thumb-badge.after  { background: rgba(56,217,169,.85); color: #0f1117; }
+  .thumb-badge.before { background: rgba(255,180,50,.85);  color: #0f1117; }
+  .thumb-badge.detail { background: rgba(79,142,247,.85);  color: #fff; }
+  .thumb-classified { position: absolute; bottom: 22px; left: 0; right: 0; background: rgba(0,0,0,.6); color: var(--text2); font-size: 9px; padding: 2px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
   .thumb-remove { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,.7); border: none; color: #fff; cursor: pointer; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; line-height: 18px; text-align: center; }
 
   /* Actions */
@@ -223,6 +226,7 @@
       </svg>
       Process Photos
     </button>
+    <button class="btn btn-secondary" id="classifyBtn" onclick="classifyAll()" style="display:none">&#128269; Auto-Classify</button>
     <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
     <div class="progress-wrap" id="progressWrap" style="display:none">
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
@@ -317,6 +321,7 @@
 // ─── State ────────────────────────────────────────────────────────────────────
 let uploadedFiles = [];
 let results = [];
+let classifications = {}; // index → {type, stage, description}
 let currentPreset = 'before_after';
 let isProcessing = false;
 
@@ -427,6 +432,22 @@ Result: clean, consistent quality matching professional portfolio photography.`,
 // Fallback soft prompt (safety filter triggered)
 const SOFT_FALLBACK = `Please retouch this construction site photo. There are some graphic elements overlaid on the image — clean them up so the background shows through naturally. Improve the overall photo quality slightly. Return the retouched photo.`;
 
+// ─── Classification prompt ────────────────────────────────────────────────────
+const CLASSIFY_PROMPT = `Analyze this home improvement contractor photo. Respond with ONLY a valid JSON object, no other text:
+{"type":"hvac","stage":"before","description":"brief 4-word subject"}
+
+Rules for type:
+- "hvac" = AC units, ductwork, vents, heat pumps, thermostats, furnaces
+- "plumbing" = pipes, faucets, toilets, water heaters, drains, valves
+- "roofing" = shingles, gutters, roof exterior, flashing, soffits, fascia
+- "interior" = rooms, walls, floors, ceilings, cabinets, tiles, paint, drywall
+- "general" = electrical, framing, insulation, concrete, landscaping, or unclear
+
+Rules for stage:
+- "before" = unfinished, old, damaged, dirty, messy, pre-installation state
+- "after" = finished, new, clean, installed, completed, polished result
+- "detail" = close-up shot or unclear before/after status`;
+
 // ─── Persist settings ─────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
   const k = localStorage.getItem('or_api_key');
@@ -484,7 +505,9 @@ function handleFiles(files) {
     if (!uploadedFiles.find(u => u.name === f.name && u.size === f.size)) uploadedFiles.push(f);
   });
   renderThumbs();
-  document.getElementById('actionsRow').style.display = uploadedFiles.length ? 'flex' : 'none';
+  const hasFiles = uploadedFiles.length > 0;
+  document.getElementById('actionsRow').style.display = hasFiles ? 'flex' : 'none';
+  document.getElementById('classifyBtn').style.display = hasFiles ? 'flex' : 'none';
 }
 
 // IMPORTANT: Use FileReader for thumbnails — never createObjectURL (CORS issues)
@@ -509,7 +532,8 @@ async function renderThumbs() {
     div.className = 'thumb-item';
     div.innerHTML = `
       <img src="${dataURL}" alt="">
-      <div class="thumb-badge${isAfter ? ' after' : ''}">${badge}</div>
+      <div class="${getBadgeClass(i)}">${badge}</div>
+      <div class="thumb-classified">${classifications[i]?.description || ''}</div>
       <button class="thumb-remove" onclick="removeFile(${i})">&#215;</button>
       <div class="thumb-name">${file.name}</div>`;
     grid.appendChild(div);
@@ -517,34 +541,70 @@ async function renderThumbs() {
 }
 
 function getBadge(i) {
+  if (classifications[i]) {
+    const { type, stage } = classifications[i];
+    const t = { hvac:'HVAC', plumbing:'PLUMB', roofing:'ROOF', interior:'INT', general:'GEN' }[type] || type.toUpperCase();
+    return `${t} · ${stage.toUpperCase()}`;
+  }
   if (currentPreset === 'before_after') return i % 2 === 0 ? 'BEFORE' : 'AFTER';
   if (currentPreset === 'style_series') return i === 0 ? 'REF' : `#${i}`;
   return `#${i + 1}`;
 }
 
+function getBadgeClass(i) {
+  if (classifications[i]) return 'thumb-badge ' + classifications[i].stage;
+  if (currentPreset === 'before_after') return 'thumb-badge' + (i % 2 === 1 ? ' after' : '');
+  return 'thumb-badge';
+}
+
 function refreshBadges() {
   document.querySelectorAll('.thumb-item').forEach((item, i) => {
     const badge = item.querySelector('.thumb-badge');
-    const isAfter = currentPreset === 'before_after' && i % 2 === 1;
     badge.textContent = getBadge(i);
-    badge.className = 'thumb-badge' + (isAfter ? ' after' : '');
+    badge.className = getBadgeClass(i);
+    const desc = item.querySelector('.thumb-classified');
+    if (desc) desc.textContent = classifications[i]?.description || '';
   });
+}
+
+function updateThumbBadge(i) {
+  const items = document.querySelectorAll('.thumb-item');
+  if (!items[i]) return;
+  const badge = items[i].querySelector('.thumb-badge');
+  badge.textContent = getBadge(i);
+  badge.className = getBadgeClass(i);
+  const desc = items[i].querySelector('.thumb-classified');
+  if (desc) desc.textContent = classifications[i]?.description || '';
 }
 
 function removeFile(i) {
   uploadedFiles.splice(i, 1);
+  delete classifications[i];
+  // Re-index classifications
+  const newCls = {};
+  Object.keys(classifications).forEach(k => {
+    const ki = parseInt(k);
+    if (ki > i) newCls[ki - 1] = classifications[k];
+    else newCls[k] = classifications[k];
+  });
+  classifications = newCls;
   renderThumbs();
-  document.getElementById('actionsRow').style.display = uploadedFiles.length ? 'flex' : 'none';
+  const hasFiles = uploadedFiles.length > 0;
+  document.getElementById('actionsRow').style.display = hasFiles ? 'flex' : 'none';
+  document.getElementById('classifyBtn').style.display = hasFiles ? 'flex' : 'none';
 }
 
 function clearAll() {
-  uploadedFiles = []; results = [];
+  uploadedFiles = []; results = []; classifications = {};
   document.getElementById('thumbGrid').innerHTML = '';
   document.getElementById('actionsRow').style.display = 'none';
+  document.getElementById('classifyBtn').style.display = 'none';
   document.getElementById('resultsSection').style.display = 'none';
   document.getElementById('resultGrid').innerHTML = '';
   document.getElementById('progressWrap').style.display = 'none';
   clearLog();
+  const cb = document.getElementById('classifyBtn');
+  cb.disabled = false; cb.innerHTML = '&#128269; Auto-Classify';
 }
 
 // ─── Image helpers ────────────────────────────────────────────────────────────
@@ -669,6 +729,66 @@ function buildFilename(project, type, num) {
   return `${(project || 'Project').replace(/\s+/g, '-')}_${type}_${String(num).padStart(2, '0')}.jpg`;
 }
 
+// ─── Auto-Classify ───────────────────────────────────────────────────────────
+async function classifyAll() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!apiKey) { alert('Enter your OpenRouter API key first.'); return; }
+  if (!uploadedFiles.length) return;
+
+  const btn = document.getElementById('classifyBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<svg class="spinner" width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="20" stroke-dashoffset="5"/></svg> Classifying...`;
+  log('Auto-classifying photos...', 'info');
+
+  const model = 'google/gemini-3.1-flash-image-preview';
+
+  for (let i = 0; i < uploadedFiles.length; i++) {
+    const file = uploadedFiles[i];
+    log(`Classifying: ${file.name}`, 'info');
+    try {
+      const b64 = await compressImage(file, 768, 0.75);
+      const data = await callOpenRouter([b64], CLASSIFY_PROMPT, apiKey, model);
+      const msg = data?.choices?.[0]?.message;
+      const text = typeof msg?.content === 'string'
+        ? msg.content
+        : (Array.isArray(msg?.content) ? (msg.content.find(c => c.type === 'text')?.text || '') : '');
+      const m = text.match(/\{[\s\S]*?\}/);
+      if (m) {
+        const p = JSON.parse(m[0]);
+        classifications[i] = {
+          type:        ['hvac','plumbing','roofing','interior','general'].includes(p.type) ? p.type : 'general',
+          stage:       ['before','after','detail'].includes(p.stage) ? p.stage : 'detail',
+          description: (p.description || '').slice(0, 40),
+        };
+        log(`${file.name} → ${classifications[i].type} / ${classifications[i].stage} — "${classifications[i].description}"`, 'ok');
+      } else {
+        classifications[i] = { type: 'general', stage: 'detail', description: '' };
+        log(`${file.name}: could not parse JSON — set to general/detail`, 'warn');
+      }
+    } catch(e) {
+      classifications[i] = { type: 'general', stage: 'detail', description: '' };
+      log(`Classify error ${file.name}: ${e.message}`, 'err');
+    }
+    updateThumbBadge(i);
+  }
+
+  // Auto-switch preset to majority type
+  const types = Object.values(classifications).map(c => c.type);
+  const freq = {};
+  types.forEach(t => { freq[t] = (freq[t] || 0) + 1; });
+  const majority = Object.entries(freq).sort((a,b) => b[1]-a[1])[0]?.[0];
+  if (majority && majority !== 'general' && PRESET_CONFIG[majority]) {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.preset-btn[data-preset="${majority}"]`)?.classList.add('active');
+    currentPreset = majority;
+    updateHint();
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '&#10003; Classified';
+  log(`Classification complete — ${Object.keys(classifications).length} photos tagged`, 'ok');
+}
+
 // ─── Main processing ──────────────────────────────────────────────────────────
 async function startProcessing() {
   const apiKey = document.getElementById('apiKey').value.trim();
@@ -727,16 +847,19 @@ async function processPairs(files, prompt, apiKey, model, project) {
       const imgs = extractImages(data);
       log(`Pair ${pairNum}: ${imgs.length} image(s) received`, imgs.length ? 'ok' : 'warn');
 
+      const clsBefore = classifications[i]   || {};
+      const clsAfter  = classifications[i+1] || {};
+      const pairType  = clsBefore.type || clsAfter.type || 'work';
       if (imgs.length >= 2) {
-        results.push({ b64: imgs[0], name: buildFilename(project, 'before', pairNum) });
-        results.push({ b64: imgs[1], name: buildFilename(project, 'after', pairNum) });
+        results.push({ b64: imgs[0], name: buildFilename(project, `${pairType}_before`, pairNum) });
+        results.push({ b64: imgs[1], name: buildFilename(project, `${pairType}_after`,  pairNum) });
       } else if (imgs.length === 1) {
         log('Only 1 returned — processing second individually', 'warn');
-        results.push({ b64: imgs[0], name: buildFilename(project, 'before', pairNum) });
+        results.push({ b64: imgs[0], name: buildFilename(project, `${pairType}_before`, pairNum) });
         if (pair.length === 2) {
           const d2 = await callOpenRouter([compressed[1]], PROMPTS.general, apiKey, model);
           const i2 = extractImages(d2);
-          if (i2.length) results.push({ b64: i2[0], name: buildFilename(project, 'after', pairNum) });
+          if (i2.length) results.push({ b64: i2[0], name: buildFilename(project, `${pairType}_after`, pairNum) });
         }
       } else {
         log(`Pair ${pairNum}: no images returned`, 'err');
@@ -807,7 +930,10 @@ async function processIndividual(files, prompt, apiKey, model, project) {
       if (imgs.length) {
         let out = imgs[0];
         if (currentPreset === 'upscale') out = await resizeToHD(out);
-        const type = currentPreset === 'upscale' ? 'upscaled' : currentPreset === 'general' ? 'hero' : currentPreset;
+        const cls = classifications[i];
+        const type = cls
+          ? (currentPreset === 'upscale' ? `${cls.type}_upscaled` : `${cls.type}_${cls.stage}`)
+          : (currentPreset === 'upscale' ? 'upscaled' : currentPreset === 'general' ? 'hero' : currentPreset);
         results.push({ b64: out, name: buildFilename(project, type, i + 1) });
         log(`Done: ${files[i].name}`, 'ok');
       } else {
