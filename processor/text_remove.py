@@ -12,8 +12,8 @@ def detect_text_regions(image_path: Path) -> list[tuple]:
     """Detect text regions using EasyOCR. Returns list of bounding boxes."""
     try:
         import easyocr
-        reader = easyocr.Reader(["en"], gpu=False)
-        results = reader.readtext(str(image_path))
+        reader = easyocr.Reader(["en"], gpu=False, verbose=False)
+        results = reader.readtext(str(image_path), detail=1)
         boxes = []
         for (bbox, text, confidence) in results:
             if confidence > 0.3:
