@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeImpruv Photo Processor</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3248;
+    --accent: #4f8ef7;
+    --accent2: #38d9a9;
+    --danger: #ff6b6b;
+    --text: #e8eaf0;
+    --text2: #8b90a8;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header span { color: var(--accent); }
+  .badge { background: var(--accent); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  .config-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+  .field input, .field select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    outline: none;
+    transition: border .2s;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field input[type="password"] { letter-spacing: 2px; }
+
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .preset-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 7px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all .2s;
+  }
+  .preset-btn:hover { border-color: var(--accent); color: var(--text); }
+  .preset-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    margin-bottom: 20px;
+  }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: rgba(79,142,247,.06); }
+  .upload-zone p { color: var(--text2); font-size: 14px; }
+  .upload-zone strong { color: var(--text); }
+  #fileInput { display: none; }
+
+  .thumb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .thumb-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .thumb-item img { width: 100%; height: 100px; object-fit: cover; display: block; }
+  .thumb-item .thumb-name { font-size: 10px; color: var(--text2); padding: 5px 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .thumb-item .thumb-badge {
+    position: absolute; top: 5px; left: 5px;
+    background: rgba(0,0,0,.65); color: #fff;
+    font-size: 10px; padding: 2px 7px; border-radius: 10px;
+  }
+  .thumb-item .thumb-badge.after { background: rgba(56,217,169,.8); color: #0f1117; }
+  .thumb-item .thumb-remove {
+    position: absolute; top: 4px; right: 4px;
+    background: rgba(0,0,0,.65); border: none; color: #fff;
+    cursor: pointer; border-radius: 50%; width: 20px; height: 20px;
+    font-size: 12px; display: flex; align-items: center; justify-content: center;
+  }
+
+  .actions { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 24px; border-radius: var(--radius); border: none;
+    cursor: pointer; font-size: 14px; font-weight: 600;
+    transition: all .2s; display: flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #3a7ae8; }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn-success { background: var(--accent2); color: #0f1117; }
+  .btn-success:hover { background: #2bc898; }
+
+  .progress-wrap { flex: 1; min-width: 200px; }
+  .progress-bar-bg { background: var(--surface2); border-radius: 20px; height: 8px; overflow: hidden; }
+  .progress-bar-fill { background: var(--accent); height: 100%; border-radius: 20px; transition: width .3s; }
+  .progress-label { font-size: 12px; color: var(--text2); margin-top: 5px; }
+
+  .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .results-header h2 { font-size: 16px; }
+  .result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .result-card img { width: 100%; height: 160px; object-fit: cover; display: block; }
+  .result-card .result-info { padding: 10px 12px; }
+  .result-card .result-name { font-size: 11px; color: var(--text2); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn-dl { width: 100%; padding: 7px; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+  .btn-dl:hover { background: #3a7ae8; }
+
+  .log-wrap { margin-top: 24px; }
+  .log-toggle { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .log-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px; margin-top: 10px; max-height: 200px; overflow-y: auto;
+    font-family: monospace; font-size: 12px; color: var(--text2); display: none;
+  }
+  .log-box.open { display: block; }
+  .log-line { margin-bottom: 3px; }
+  .log-line.ok   { color: var(--accent2); }
+  .log-line.err  { color: var(--danger); }
+  .log-line.info { color: var(--accent); }
+  .log-line.warn { color: #ffd43b; }
+
+  .spinner { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .hint { font-size: 12px; color: var(--text2); margin-bottom: 16px; padding: 10px 14px; background: var(--surface); border-left: 3px solid var(--accent); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+    <rect width="28" height="28" rx="7" fill="#4f8ef7"/>
+    <path d="M7 14l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <h1>HomeImpruv <span>Photo Processor</span></h1>
+  <span class="badge">AI</span>
+</header>
+
+<div class="container">
+
+  <!-- Config -->
+  <div class="config-row">
+    <div class="field">
+      <label>OpenRouter API Key</label>
+      <input type="password" id="apiKey" placeholder="sk-or-v1-..." autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Project Name</label>
+      <input type="text" id="projectName" placeholder="Brooklyn-HVAC">
+    </div>
+    <div class="field">
+      <label>Model</label>
+      <select id="modelSelect">
+        <option value="google/gemini-flash-1.5-8b">Gemini Flash 8B — cheapest</option>
+        <option value="google/gemini-2.0-flash-001" selected>Gemini 2.0 Flash — balanced ✓</option>
+        <option value="google/gemini-2.5-pro-preview-03-25">Gemini 2.5 Pro — best quality</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Presets -->
+  <div class="presets" id="presets">
+    <button class="preset-btn active" data-preset="before_after">Before / After</button>
+    <button class="preset-btn" data-preset="upscale">Upscale HD</button>
+    <button class="preset-btn" data-preset="hvac">HVAC</button>
+    <button class="preset-btn" data-preset="plumbing">Plumbing</button>
+    <button class="preset-btn" data-preset="roofing">Roofing</button>
+    <button class="preset-btn" data-preset="interior">Interior</button>
+    <button class="preset-btn" data-preset="general">General</button>
+    <button class="preset-btn" data-preset="custom">Custom</button>
+  </div>
+
+  <!-- Hint -->
+  <div class="hint" id="presetHint">
+    Upload photos in pairs: before_1, after_1, before_2, after_2... Each pair is processed together for consistent style matching.
+  </div>
+
+  <!-- Custom prompt -->
+  <div id="customPromptWrap" style="display:none; margin-bottom:16px;">
+    <div class="field">
+      <label>Custom Prompt</label>
+      <input type="text" id="customPrompt" placeholder="Describe what you want to do with these photos...">
+    </div>
+  </div>
+
+  <!-- Upload -->
+  <div class="upload-zone" id="uploadZone">
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin-bottom:12px; display:block; margin-left:auto; margin-right:auto;">
+      <path d="M20 8v16M13 15l7-7 7 7M8 30h24" stroke="#8b90a8" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <p><strong>Drag & drop photos here</strong> or click to browse</p>
+    <p style="margin-top:6px; font-size:12px;">JPG, PNG, WEBP — multiple files supported</p>
+    <input type="file" id="fileInput" multiple accept="image/*">
+  </div>
+
+  <!-- Thumbnails -->
+  <div class="thumb-grid" id="thumbGrid"></div>
+
+  <!-- Actions -->
+  <div class="actions" id="actionsRow" style="display:none">
+    <button class="btn btn-primary" id="processBtn" onclick="startProcessing()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="6" stroke="#fff" stroke-width="1.5"/>
+        <path d="M8 5v3l2 2" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Process Photos
+    </button>
+    <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+    <div class="progress-wrap" id="progressWrap" style="display:none">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-label" id="progressLabel">Preparing...</div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="resultsSection" style="display:none">
+    <div class="results-header">
+      <h2>&#10003; Results</h2>
+      <button class="btn btn-success" onclick="downloadAll()">&#8595; Download All</button>
+    </div>
+    <div class="result-grid" id="resultGrid"></div>
+  </div>
+
+  <!-- Log -->
+  <div class="log-wrap">
+    <button class="log-toggle" onclick="toggleLog()">
+      <svg id="logArrow" width="14" height="14" viewBox="0 0 14 14" fill="none" style="transition:transform .2s">
+        <path d="M3 5l4 4 4-4" stroke="#8b90a8" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Debug Log
+    </button>
+    <div class="log-box" id="logBox"></div>
+  </div>
+
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let uploadedFiles = [];
+let results = [];
+let currentPreset = 'before_after';
+let isProcessing = false;
+
+const HINTS = {
+  before_after: 'Upload photos in pairs: before_1, after_1, before_2, after_2... Each pair processed together for consistent style.',
+  upscale: 'Photos will be AI-enhanced and resized to 1920x1080 HD.',
+  hvac: 'Optimized for HVAC equipment — sharpens units, ductwork, mechanical components.',
+  plumbing: 'Optimized for plumbing — sharpens pipes, fixtures, and connections.',
+  roofing: 'Optimized for roofing — enhances shingles, flashing, structural details.',
+  interior: 'Optimized for interiors — warm inviting light, surface textures.',
+  general: 'General cleanup — removes overlaid text, corrects color, sharpens details.',
+  custom: 'Write your own processing instructions below.',
+};
+
+// ─── Persist settings ─────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const k = localStorage.getItem('or_api_key');
+  if (k) document.getElementById('apiKey').value = k;
+  const p = localStorage.getItem('project_name');
+  if (p) document.getElementById('projectName').value = p;
+  const m = localStorage.getItem('model');
+  if (m) document.getElementById('modelSelect').value = m;
+});
+document.getElementById('apiKey').addEventListener('change', e => localStorage.setItem('or_api_key', e.target.value.trim()));
+document.getElementById('projectName').addEventListener('change', e => localStorage.setItem('project_name', e.target.value.trim()));
+document.getElementById('modelSelect').addEventListener('change', e => localStorage.setItem('model', e.target.value));
+
+// ─── Presets ──────────────────────────────────────────────────────────────────
+document.getElementById('presets').addEventListener('click', e => {
+  const btn = e.target.closest('.preset-btn');
+  if (!btn) return;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPreset = btn.dataset.preset;
+  document.getElementById('presetHint').textContent = HINTS[currentPreset] || '';
+  document.getElementById('customPromptWrap').style.display = currentPreset === 'custom' ? 'block' : 'none';
+  refreshBadges();
+});
+
+// ─── Upload ───────────────────────────────────────────────────────────────────
+const uploadZone = document.getElementById('uploadZone');
+const fileInput  = document.getElementById('fileInput');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag-over');
+  handleFiles(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
+});
+fileInput.addEventListener('change', e => { handleFiles(Array.from(e.target.files)); fileInput.value = ''; });
+
+function handleFiles(files) {
+  files.forEach(f => {
+    if (!uploadedFiles.find(u => u.name === f.name && u.size === f.size)) uploadedFiles.push(f);
+  });
+  renderThumbs();
+  document.getElementById('actionsRow').style.display = uploadedFiles.length ? 'flex' : 'none';
+}
+
+function getBadge(i) {
+  if (currentPreset === 'before_after') return i % 2 === 0 ? 'BEFORE' : 'AFTER';
+  return '#' + (i + 1);
+}
+
+function renderThumbs() {
+  const grid = document.getElementById('thumbGrid');
+  grid.innerHTML = '';
+  uploadedFiles.forEach((file, i) => {
+    const isAfter = currentPreset === 'before_after' && i % 2 === 1;
+    const url = URL.createObjectURL(file);
+    const div = document.createElement('div');
+    div.className = 'thumb-item';
+    div.innerHTML = `
+      <img src="${url}" alt="">
+      <div class="thumb-badge${isAfter ? ' after' : ''}">${getBadge(i)}</div>
+      <button class="thumb-remove" onclick="removeFile(${i})">&#215;</button>
+      <div class="thumb-name">${file.name}</div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function refreshBadges() {
+  document.querySelectorAll('.thumb-item').forEach((item, i) => {
+    const badge = item.querySelector('.thumb-badge');
+    const isAfter = currentPreset === 'before_after' && i % 2 === 1;
+    badge.textContent = getBadge(i);
+    badge.className = 'thumb-badge' + (isAfter ? ' after' : '');
+  });
+}
+
+function removeFile(i) {
+  uploadedFiles.splice(i, 1);
+  renderThumbs();
+  document.getElementById('actionsRow').style.display = uploadedFiles.length ? 'flex' : 'none';
+}
+
+function clearAll() {
+  uploadedFiles = []; results = [];
+  document.getElementById('thumbGrid').innerHTML = '';
+  document.getElementById('actionsRow').style.display = 'none';
+  document.getElementById('resultsSection').style.display = 'none';
+  document.getElementById('resultGrid').innerHTML = '';
+  document.getElementById('progressWrap').style.display = 'none';
+  clearLog();
+}
+
+// ─── Image processing helpers ─────────────────────────────────────────────────
+function compressImage(file, maxPx = 1536, quality = 0.88) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let { width: w, height: h } = img;
+        if (Math.max(w, h) > maxPx) {
+          const r = maxPx / Math.max(w, h);
+          w = Math.round(w * r); h = Math.round(h * r);
+        }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', quality).split(',')[1]);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function resizeToHD(b64) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = 1920; c.height = 1080;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, 1920, 1080);
+      const r = Math.min(1920 / img.width, 1080 / img.height);
+      const w = Math.round(img.width * r), h = Math.round(img.height * r);
+      ctx.drawImage(img, Math.round((1920 - w) / 2), Math.round((1080 - h) / 2), w, h);
+      resolve(c.toDataURL('image/jpeg', 0.92).split(',')[1]);
+    };
+    img.src = 'data:image/jpeg;base64,' + b64;
+  });
+}
+
+// ─── Prompts ──────────────────────────────────────────────────────────────────
+const PROMPTS = {
+  before_after: `You are processing a pair of contractor photos (before and after).
+1. Erase all overlaid text and inpaint overlaid graphics naturally using surrounding texture.
+2. Match the color grade of both images to consistent neutral daylight 5500K white balance.
+3. Lift shadows gently, enhance contrast, sharpen structural edges and equipment details.
+4. Do NOT alter the actual work shown. Preserve realistic appearance.
+5. Return both images with identical style — professional matched pair.
+Suitable for contractor portfolio, Houzz, Google Business.`,
+
+  upscale: `Enhance this contractor photo to Full HD quality.
+1. Upscale sharpness and detail — equipment, structural elements, materials.
+2. Correct lighting to neutral daylight 5500K.
+3. Erase all overlaid text by inpainting naturally.
+4. Do not add elements or alter the actual work shown.
+Output: high-quality photo suitable for contractor portfolio.`,
+
+  hvac: `Process this HVAC contractor photo.
+1. Erase all overlaid text and company logos by inpainting naturally.
+2. Enhance clarity of HVAC units, ductwork, and mechanical components.
+3. Correct to neutral daylight 5500K, lift shadows in dark equipment areas.
+4. Sharpen metal surfaces, vents, and installation details.
+5. Preserve the original scene. Suitable for HVAC contractor portfolio.`,
+
+  plumbing: `Process this plumbing contractor photo.
+1. Erase all overlaid text and inpaint overlaid graphics naturally.
+2. Enhance clarity of pipes, fixtures, and connections.
+3. Correct to neutral daylight 5500K.
+4. Sharpen pipe edges and fitting details.
+5. Preserve the original scene. Suitable for plumbing contractor portfolio.`,
+
+  roofing: `Process this roofing contractor photo.
+1. Erase all overlaid text and inpaint overlaid graphics naturally.
+2. Enhance shingle texture, flashing, and structural details.
+3. Correct sky exposure to natural daylight.
+4. Sharpen roof lines and material details.
+5. Preserve the original scene. Suitable for roofing contractor portfolio.`,
+
+  interior: `Process this interior renovation photo.
+1. Erase all overlaid text and inpaint overlaid graphics naturally.
+2. Enhance room lighting to warm inviting 5500K.
+3. Sharpen surfaces, textures, and finish details.
+4. Lift shadows, balance highlights.
+5. Preserve the original scene. Suitable for interior renovation portfolio.`,
+
+  general: `Clean up this contractor photo for professional use.
+1. Erase all overlaid text and logos by inpainting naturally.
+2. Correct to neutral daylight 5500K.
+3. Lift shadows, enhance contrast and sharpness.
+4. Preserve the original scene. Suitable for contractor portfolio.`,
+};
+
+function getPrompt() {
+  if (currentPreset === 'custom') return document.getElementById('customPrompt').value || PROMPTS.general;
+  return PROMPTS[currentPreset] || PROMPTS.general;
+}
+
+// ─── OpenRouter API ───────────────────────────────────────────────────────────
+async function callOpenRouter(images, prompt, apiKey, model, softRetry = false) {
+  const p = softRetry
+    ? prompt.replace(/watermark/gi, 'overlaid graphic').replace(/\blogo\b/gi, 'overlaid graphic').replace(/remove/gi, 'erase')
+    : prompt;
+
+  const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://homeimpruv.com',
+      'X-Title': 'HomeImpruv Photo Processor',
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'text', text: p },
+          ...images.map(b64 => ({ type: 'image_url', image_url: { url: `data:image/jpeg;base64,${b64}` } }))
+        ]
+      }],
+      modalities: ['image', 'text'],
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(`API ${resp.status}: ${err?.error?.message || resp.statusText}`);
+  }
+  return resp.json();
+}
+
+// ─── Response parsing — 3 fallback levels ────────────────────────────────────
+function extractImages(data) {
+  const msg = data?.choices?.[0]?.message;
+  if (!msg) return [];
+  const out = [];
+
+  // Level 1: msg.images[]
+  if (Array.isArray(msg.images)) {
+    msg.images.forEach(img => {
+      const url = img?.image_url?.url || img?.url;
+      if (url) out.push(url.replace(/^data:image\/\w+;base64,/, ''));
+    });
+  }
+
+  // Level 2: content[].type === "image_url"
+  if (!out.length && Array.isArray(msg.content)) {
+    msg.content.forEach(c => {
+      if (c.type === 'image_url' && c.image_url?.url) {
+        out.push(c.image_url.url.replace(/^data:image\/\w+;base64,/, ''));
+      }
+    });
+  }
+
+  // Level 3: base64 regex in text
+  if (!out.length) {
+    const text = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg);
+    const matches = text.match(/[A-Za-z0-9+/]{200,}={0,2}/g);
+    if (matches) matches.filter(m => m.length > 1000).forEach(m => out.push(m));
+  }
+
+  if (!out.length) log('DEBUG: ' + JSON.stringify(data).substring(0, 400), 'warn');
+  return out;
+}
+
+function isSafetyRefusal(data) {
+  const t = JSON.stringify(data).toLowerCase();
+  return t.includes("just a language model") || t.includes("i'm not able") ||
+         t.includes("can't process") || t.includes("cannot process image") ||
+         t.includes("i cannot") || t.includes("i'm unable");
+}
+
+// ─── File naming ──────────────────────────────────────────────────────────────
+function buildFilename(project, type, num) {
+  return `${(project||'Project').replace(/\s+/g,'-')}_${type}_${String(num).padStart(2,'0')}.jpg`;
+}
+
+// ─── Main processing ──────────────────────────────────────────────────────────
+async function startProcessing() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const project = document.getElementById('projectName').value.trim() || 'Project';
+  const model = document.getElementById('modelSelect').value;
+
+  if (!apiKey) { alert('Please enter your OpenRouter API key.'); return; }
+  if (!uploadedFiles.length) { alert('Please upload photos first.'); return; }
+  if (isProcessing) return;
+
+  isProcessing = true; results = [];
+  const btn = document.getElementById('processBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<svg class="spinner" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="#fff" stroke-width="2" fill="none" stroke-dasharray="25" stroke-dashoffset="5"/></svg> Processing...`;
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('resultsSection').style.display = 'none';
+  clearLog();
+
+  const prompt = getPrompt();
+  const files = [...uploadedFiles];
+  let done = 0;
+
+  try {
+    if (currentPreset === 'before_after') {
+      const pairs = Math.ceil(files.length / 2);
+      for (let i = 0; i < files.length; i += 2) {
+        const pair = files.slice(i, i + 2);
+        const pairNum = Math.floor(i / 2) + 1;
+        setProgress(done, files.length, `Pair ${pairNum}/${pairs} — ${pair.map(f=>f.name).join(' + ')}`);
+        log(`Pair ${pairNum}: ${pair.map(f=>f.name).join(' + ')}`, 'info');
+
+        try {
+          const compressed = await Promise.all(pair.map(f => compressImage(f)));
+          let data = await callOpenRouter(compressed, prompt, apiKey, model);
+
+          if (isSafetyRefusal(data)) {
+            log('Safety filter triggered — retrying with softer prompt', 'warn');
+            data = await callOpenRouter(compressed, prompt, apiKey, model, true);
+          }
+
+          const imgs = extractImages(data);
+          log(`Pair ${pairNum}: received ${imgs.length} image(s)`, imgs.length ? 'ok' : 'warn');
+
+          if (imgs.length >= 2) {
+            results.push({ b64: imgs[0], name: buildFilename(project, 'before', pairNum) });
+            results.push({ b64: imgs[1], name: buildFilename(project, 'after',  pairNum) });
+          } else if (imgs.length === 1) {
+            log('Only 1 image returned — processing second individually', 'warn');
+            results.push({ b64: imgs[0], name: buildFilename(project, 'before', pairNum) });
+            if (pair.length === 2) {
+              const d2 = await callOpenRouter([compressed[1]], prompt, apiKey, model);
+              const i2 = extractImages(d2);
+              if (i2.length) results.push({ b64: i2[0], name: buildFilename(project, 'after', pairNum) });
+            }
+          } else {
+            log(`Pair ${pairNum}: no images in response — skipped`, 'err');
+          }
+        } catch(e) {
+          log(`Pair ${pairNum} error: ${e.message}`, 'err');
+        }
+
+        done += pair.length;
+      }
+
+    } else {
+      for (let i = 0; i < files.length; i++) {
+        setProgress(i, files.length, `${i+1}/${files.length} — ${files[i].name}`);
+        log(`Processing: ${files[i].name}`, 'info');
+        try {
+          const b64 = await compressImage(files[i]);
+          let data = await callOpenRouter([b64], prompt, apiKey, model);
+          if (isSafetyRefusal(data)) {
+            log('Safety filter — retrying', 'warn');
+            data = await callOpenRouter([b64], prompt, apiKey, model, true);
+          }
+          const imgs = extractImages(data);
+          if (imgs.length) {
+            let out = imgs[0];
+            if (currentPreset === 'upscale') out = await resizeToHD(out);
+            const type = currentPreset === 'upscale' ? 'upscaled' : currentPreset;
+            results.push({ b64: out, name: buildFilename(project, type, i+1) });
+            log(`Done: ${files[i].name}`, 'ok');
+          } else {
+            log(`No image returned: ${files[i].name}`, 'err');
+          }
+        } catch(e) {
+          log(`Error: ${files[i].name} — ${e.message}`, 'err');
+        }
+        done++;
+      }
+    }
+  } finally {
+    setProgress(files.length, files.length, `Done — ${results.length} of ${files.length} processed`);
+    renderResults();
+    isProcessing = false;
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#fff" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg> Process Photos`;
+  }
+}
+
+// ─── UI helpers ───────────────────────────────────────────────────────────────
+function setProgress(done, total, label) {
+  document.getElementById('progressFill').style.width = (total ? Math.round(done/total*100) : 0) + '%';
+  document.getElementById('progressLabel').textContent = label;
+}
+
+function renderResults() {
+  const grid = document.getElementById('resultGrid');
+  grid.innerHTML = '';
+  if (!results.length) return;
+  document.getElementById('resultsSection').style.display = 'block';
+  results.forEach((r, i) => {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.innerHTML = `
+      <img src="data:image/jpeg;base64,${r.b64}" alt="${r.name}">
+      <div class="result-info">
+        <div class="result-name">${r.name}</div>
+        <button class="btn-dl" onclick="downloadOne(${i})">&#8595; Download</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function downloadOne(i) {
+  const a = document.createElement('a');
+  a.href = 'data:image/jpeg;base64,' + results[i].b64;
+  a.download = results[i].name;
+  a.click();
+}
+
+function downloadAll() {
+  results.forEach((_, i) => setTimeout(() => downloadOne(i), i * 400));
+}
+
+function log(msg, type = '') {
+  const box = document.getElementById('logBox');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearLog() { document.getElementById('logBox').innerHTML = ''; }
+
+function toggleLog() {
+  const box = document.getElementById('logBox');
+  box.classList.toggle('open');
+  document.getElementById('logArrow').style.transform = box.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+</script>
+</body>
+</html>
