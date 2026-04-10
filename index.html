@@ -33,7 +33,8 @@ header span{color:var(--accent);}
 .field input:focus,.field select:focus{border-color:var(--accent);}
 
 /* ── Tool cards ── */
-.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:800px){.tools{grid-template-columns:repeat(2,1fr);}}
 .tool-card{
   background:var(--surface);border:2px solid var(--border);border-radius:var(--r);
   padding:18px 16px;cursor:pointer;transition:all .15s;
@@ -135,11 +136,6 @@ header span{color:var(--accent);}
 .lb img{max-width:90vw;max-height:90vh;border-radius:8px;}
 .lb-x{position:absolute;top:16px;right:20px;color:#fff;font-size:28px;cursor:pointer;background:none;border:none;}
 
-/* ── Mode toggle (Split/Join) ── */
-.mode-toggle{display:flex;gap:4px;margin-bottom:14px;background:var(--surface2);padding:4px;border-radius:8px;width:fit-content;}
-.mode-btn{background:none;border:none;color:var(--text2);padding:7px 20px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;}
-.mode-btn.active{background:var(--accent);color:#fff;}
-.mode-btn:hover:not(.active){color:var(--text);}
 
 /* ── Spinner ── */
 .spin{animation:rot 1s linear infinite;}
@@ -198,11 +194,13 @@ header span{color:var(--accent);}
     </div>
     <div class="tool-card" data-tool="split" onclick="selectTool('split')">
       <div class="tc-icon">✂️</div>
-      <div class="tc-title">Split / Join Before–After</div>
-      <div class="tc-desc">
-        <strong>Split</strong> — combined B/A photo → two files.<br>
-        <strong>Join</strong> — two separate photos → one side-by-side image.
-      </div>
+      <div class="tc-title">Split Before/After</div>
+      <div class="tc-desc">One combined photo (B/A side by side) → two separate files: <strong>before.jpg</strong> + <strong>after.jpg</strong>.</div>
+    </div>
+    <div class="tool-card" data-tool="join" onclick="selectTool('join')">
+      <div class="tc-icon">⊞</div>
+      <div class="tc-title">Join Before/After</div>
+      <div class="tc-desc">Two separate photos (before + after) → one combined side-by-side image: <strong>joined.jpg</strong>.</div>
     </div>
   </div>
 
@@ -288,65 +286,75 @@ header span{color:var(--accent);}
     </div>
   </div>
 
-  <!-- ══ Panel: Split / Join ══ -->
+  <!-- ══ Panel: Split ══ -->
   <div id="panel-split" class="panel">
-
-    <!-- Mode toggle -->
-    <div class="mode-toggle">
-      <button class="mode-btn active" id="modeSplitBtn" onclick="setSplitMode('split')">✂ Split</button>
-      <button class="mode-btn"        id="modeJoinBtn"  onclick="setSplitMode('join')">⊞ Join</button>
-    </div>
-
-    <!-- Split info -->
-    <div class="panel-info" id="splitInfo">
-      Upload photos that have <strong>before on the left</strong> and <strong>after on the right</strong> (one combined image).
+    <div class="panel-info">
+      Upload photos that show <strong>before on the left</strong> and <strong>after on the right</strong> (combined in one image).
       Adjust the split point with the slider. Each photo → <strong>filename_before.jpg</strong> + <strong>filename_after.jpg</strong>. No AI, instant canvas.
     </div>
-    <!-- Join info -->
-    <div class="panel-info" id="joinInfo" style="display:none">
-      Upload photos in pairs: <strong>before₁, after₁, before₂, after₂…</strong>
-      Each pair is stitched side-by-side into one combined image: <strong>filename_joined.jpg</strong>.
-      Optionally add a divider line between them. No AI, instant canvas.
-    </div>
-
-    <!-- Split slider -->
-    <div class="split-row" id="splitSliderRow">
+    <div class="split-row">
       <span>Split position</span>
       <input type="range" id="splitPct" min="5" max="95" value="50"
              oninput="document.getElementById('splitVal').textContent=this.value+'%'; previewSplitLine()">
       <span class="split-val" id="splitVal">50%</span>
     </div>
-
-    <!-- Join options -->
-    <div class="split-row" id="joinOptsRow" style="display:none">
-      <span>Divider line</span>
-      <label class="toggle" style="margin-left:4px"><input type="checkbox" id="joinDivider"><span class="tog-s"></span></label>
-      <span style="font-size:12px;color:var(--text2);flex:1">Show line between before &amp; after</span>
-      <span style="font-size:12px;color:var(--text2)">Height align:</span>
-      <select id="joinAlign" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:12px;">
-        <option value="min">Shortest</option>
-        <option value="max">Tallest (pad)</option>
-      </select>
-    </div>
-
     <div class="upload-zone" id="splitZone">
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="margin:0 auto 8px;display:block">
         <path d="M16 5v14M10 11l6-6 6 6M4 25h24" stroke="#8b90a8" stroke-width="2" stroke-linecap="round"/>
       </svg>
-      <p id="splitZoneText"><strong>Drag &amp; drop combined before/after photos</strong> or click to browse</p>
-      <small id="splitZoneHint">Each image → before.jpg + after.jpg &nbsp;|&nbsp; Up to 20 files</small>
+      <p><strong>Drag &amp; drop combined before/after photos</strong> or click to browse</p>
+      <small>Each image → before.jpg + after.jpg &nbsp;|&nbsp; Up to 20 files</small>
       <input type="file" id="splitInput" multiple accept="image/*" style="display:none">
     </div>
     <div class="thumb-grid" id="splitThumbs"></div>
     <div class="actions" id="splitActions" style="display:none">
-      <button class="btn btn-primary" id="splitRunBtn" onclick="runSplitOrJoin()">
+      <button class="btn btn-primary" id="splitRunBtn" onclick="runSplit()">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polygon points="2,1 12,6.5 2,12" fill="#fff"/></svg>
-        <span id="splitRunLabel">Split All Photos</span>
+        Split All Photos
       </button>
       <button class="btn btn-secondary" onclick="clearTool('split')">Clear</button>
       <div class="prog" id="splitProg" style="display:none">
         <div class="prog-bg"><div class="prog-fill" id="splitFill" style="width:0%"></div></div>
         <div class="prog-lbl" id="splitLbl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Panel: Join ══ -->
+  <div id="panel-join" class="panel">
+    <div class="panel-info">
+      Upload photos in pairs: <strong>before₁, after₁, before₂, after₂…</strong>
+      Each pair gets stitched side-by-side into one combined image: <strong>project_joined_01.jpg</strong>.
+      No AI, instant canvas.
+    </div>
+    <div class="split-row">
+      <span>Divider line</span>
+      <label class="toggle" style="margin-left:4px"><input type="checkbox" id="joinDivider"><span class="tog-s"></span></label>
+      <span style="font-size:12px;color:var(--text2);flex:1">Show separator between photos</span>
+      <span style="font-size:12px;color:var(--text2)">Height align:</span>
+      <select id="joinAlign" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:12px;">
+        <option value="min">Shortest</option>
+        <option value="max">Tallest (pad white)</option>
+      </select>
+    </div>
+    <div class="upload-zone" id="joinZone">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="margin:0 auto 8px;display:block">
+        <path d="M16 5v14M10 11l6-6 6 6M4 25h24" stroke="#8b90a8" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <p><strong>Drag &amp; drop photos in pairs</strong>: before₁, after₁, before₂, after₂…</p>
+      <small>Each pair → one combined image &nbsp;|&nbsp; Up to 20 files</small>
+      <input type="file" id="joinInput" multiple accept="image/*" style="display:none">
+    </div>
+    <div class="thumb-grid" id="joinThumbs"></div>
+    <div class="actions" id="joinActions" style="display:none">
+      <button class="btn btn-primary" id="joinRunBtn" onclick="runJoin()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polygon points="2,1 12,6.5 2,12" fill="#fff"/></svg>
+        Join All Pairs
+      </button>
+      <button class="btn btn-secondary" onclick="clearTool('join')">Clear</button>
+      <div class="prog" id="joinProg" style="display:none">
+        <div class="prog-bg"><div class="prog-fill" id="joinFill" style="width:0%"></div></div>
+        <div class="prog-lbl" id="joinLbl"></div>
       </div>
     </div>
   </div>
@@ -381,7 +389,7 @@ header span{color:var(--accent);}
 
 <script>
 // ─── State ────────────────────────────────────────────────────────────────────
-const toolFiles = { clean: [], normalize: [], split: [] };
+const toolFiles = { clean: [], normalize: [], split: [], join: [] };
 let results      = [];
 let isProcessing = false;
 
@@ -430,6 +438,7 @@ function applyPreset() {
   ['cleanZone', 'cleanInput', 'clean',     'cleanActions'],
   ['normZone',  'normInput',  'normalize', 'normActions'],
   ['splitZone', 'splitInput', 'split',     'splitActions'],
+  ['joinZone',  'joinInput',  'join',      'joinActions'],
 ].forEach(([zId, inId, key, actId]) => {
   const zone  = document.getElementById(zId);
   const input = document.getElementById(inId);
@@ -453,8 +462,8 @@ function addFiles(key, actId, files) {
 }
 
 // ─── Thumbnails ───────────────────────────────────────────────────────────────
-const GRID_IDS   = { clean:'cleanThumbs', normalize:'normThumbs', split:'splitThumbs' };
-const ACTION_IDS = { clean:'cleanActions', normalize:'normActions', split:'splitActions' };
+const GRID_IDS   = { clean:'cleanThumbs', normalize:'normThumbs', split:'splitThumbs', join:'joinThumbs' };
+const ACTION_IDS = { clean:'cleanActions', normalize:'normActions', split:'splitActions', join:'joinActions' };
 
 function readDataURL(file) {
   return new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsDataURL(file); });
@@ -467,13 +476,12 @@ async function renderThumbs(key) {
     const url = await readDataURL(toolFiles[key][i]);
     const d = document.createElement('div');
     d.className = 'thumb-item';
-    // In join mode show BEFORE/AFTER badge on pairs
+    // Join panel: show BEFORE/AFTER badge by pair position
     let badge = '';
-    if (key === 'split' && splitMode === 'join') {
+    if (key === 'join') {
       const label = i % 2 === 0 ? 'BEFORE' : 'AFTER';
       const col   = i % 2 === 0 ? 'rgba(255,180,50,.9)' : 'rgba(56,217,169,.9)';
-      const tc    = i % 2 === 0 ? '#0f1117' : '#0f1117';
-      badge = `<div style="position:absolute;top:4px;left:4px;background:${col};color:${tc};font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700;">${label}</div>`;
+      badge = `<div style="position:absolute;top:4px;left:4px;background:${col};color:#0f1117;font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700;">${label}</div>`;
     }
     d.innerHTML = `<img src="${url}" alt="">${badge}<button class="thumb-rm" onclick="removeFile('${key}',${i})">&#215;</button><div class="thumb-name">${toolFiles[key][i].name}</div>`;
     grid.appendChild(d);
@@ -763,37 +771,7 @@ async function runNormalize() {
   }
 }
 
-// ─── Tool 3: Split / Join mode toggle ────────────────────────────────────────
-let splitMode = 'split'; // 'split' | 'join'
-
-function setSplitMode(mode) {
-  splitMode = mode;
-  document.getElementById('modeSplitBtn').classList.toggle('active', mode === 'split');
-  document.getElementById('modeJoinBtn').classList.toggle('active',  mode === 'join');
-  document.getElementById('splitInfo').style.display    = mode === 'split' ? '' : 'none';
-  document.getElementById('joinInfo').style.display     = mode === 'join'  ? '' : 'none';
-  document.getElementById('splitSliderRow').style.display = mode === 'split' ? '' : 'none';
-  document.getElementById('joinOptsRow').style.display    = mode === 'join'  ? '' : 'none';
-  document.getElementById('splitZoneText').innerHTML =
-    mode === 'split'
-      ? '<strong>Drag &amp; drop combined before/after photos</strong> or click to browse'
-      : '<strong>Drag &amp; drop photos in pairs</strong>: before₁, after₁, before₂, after₂…';
-  document.getElementById('splitZoneHint').textContent =
-    mode === 'split'
-      ? 'Each image → before.jpg + after.jpg  |  Up to 20 files'
-      : 'Each pair → one combined image  |  Up to 20 files';
-  document.getElementById('splitRunLabel').textContent =
-    mode === 'split' ? 'Split All Photos' : 'Join All Pairs';
-  // Refresh thumb badges (join shows BEFORE/AFTER labels)
-  renderThumbs('split');
-}
-
-function runSplitOrJoin() {
-  if (splitMode === 'split') runSplit();
-  else runJoin();
-}
-
-// ─── Split: combined → before + after ────────────────────────────────────────
+// ─── Tool 3: Split ────────────────────────────────────────────────────────────
 async function runSplit() {
   const files = toolFiles.split;
   const pct   = parseInt(document.getElementById('splitPct').value) || 50;
@@ -826,41 +804,42 @@ async function runSplit() {
   }
 }
 
-// ─── Join: before + after → one combined image ───────────────────────────────
+// ─── Tool 4: Join ─────────────────────────────────────────────────────────────
 async function runJoin() {
-  const files    = toolFiles.split;
-  const divider  = document.getElementById('joinDivider').checked;
-  const align    = document.getElementById('joinAlign').value; // 'min' | 'max'
-  const project  = document.getElementById('project').value.trim() || 'Project';
+  const files   = toolFiles.join;
+  const divider = document.getElementById('joinDivider').checked;
+  const align   = document.getElementById('joinAlign').value;
+  const project = document.getElementById('project').value.trim() || 'Project';
 
   if (!files.length)    { alert('Upload photos first.'); return; }
-  if (files.length < 2) { alert('Need at least 2 photos to join (before + after).'); return; }
+  if (files.length < 2) { alert('Need at least 2 photos (before + after) to join.'); return; }
   if (isProcessing)     return;
 
   isProcessing = true; results = [];
-  const btn   = document.getElementById('splitRunBtn');
+  const btn   = document.getElementById('joinRunBtn');
   const pairs = Math.floor(files.length / 2);
-  setBusy(btn, 'splitProg', true);
+  setBusy(btn, 'joinProg', true);
   clearLog();
-  log(`Joining ${pairs} pair(s), divider: ${divider}, align: ${align}`, 'info');
+  log(`Joining ${pairs} pair(s) | divider: ${divider} | align: ${align}`, 'info');
 
   try {
     for (let i = 0; i < files.length - 1; i += 2) {
       const pairNum = Math.floor(i / 2) + 1;
-      setProgress('split', pairNum - 1, pairs, `Pair ${pairNum}/${pairs}: ${files[i].name} + ${files[i+1].name}`);
-      log(`Joining pair ${pairNum}: ${files[i].name} + ${files[i+1].name}`, 'info');
+      setProgress('join', pairNum - 1, pairs, `Pair ${pairNum}/${pairs}: ${files[i].name} + ${files[i+1].name}`);
+      log(`Joining: ${files[i].name} + ${files[i+1].name}`, 'info');
       try {
         const joined = await canvasJoin(files[i], files[i+1], align, divider);
         results.push({ b64: joined, name: buildName(project, 'joined', pairNum) });
         log(`Done: ${buildName(project, 'joined', pairNum)}`, 'ok');
       } catch(e) { log(`Error pair ${pairNum}: ${e.message}`, 'err'); }
     }
-    if (files.length % 2 !== 0) log(`Skipped last file (no pair): ${files[files.length-1].name}`, 'warn');
+    if (files.length % 2 !== 0)
+      log(`Last file skipped (no pair): ${files[files.length-1].name}`, 'warn');
   } finally {
-    setProgress('split', pairs, pairs, `Done — ${results.length} combined image(s)`);
+    setProgress('join', pairs, pairs, `Done — ${results.length} combined image(s)`);
     renderResults();
     isProcessing = false;
-    setBusy(btn, 'splitProg', false, 'Join All Pairs');
+    setBusy(btn, 'joinProg', false, 'Join All Pairs');
   }
 }
 
@@ -884,6 +863,7 @@ const PROG_IDS = {
   clean:     ['cleanFill',  'cleanLbl'],
   norm:      ['normFill',   'normLbl'],
   split:     ['splitFill',  'splitLbl'],
+  join:      ['joinFill',   'joinLbl'],
 };
 
 function setBusy(btn, progId, on, idleHtml) {
