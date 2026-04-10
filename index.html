@@ -3,150 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HomeImpruv Photo Processor</title>
+<title>HomeImpruv Photo Tools</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-  :root {
-    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a;
-    --border: #2e3248; --accent: #4f8ef7; --accent2: #38d9a9;
-    --danger: #ff6b6b; --warn: #ffd43b;
-    --text: #e8eaf0; --text2: #8b90a8; --radius: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a;
+  --border:#2e3248; --accent:#4f8ef7; --accent2:#38d9a9;
+  --danger:#ff6b6b; --warn:#ffd43b;
+  --text:#e8eaf0; --text2:#8b90a8; --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
 
-  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
-  header h1 { font-size: 17px; font-weight: 600; }
-  header span { color: var(--accent); }
-  .badge { background: var(--accent); color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
+/* ── Header ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:12px;}
+header h1{font-size:17px;font-weight:600;}
+header span{color:var(--accent);}
+.badge{background:var(--accent);color:#fff;font-size:10px;padding:2px 8px;border-radius:20px;margin-left:6px;}
 
-  .container { max-width: 1100px; margin: 0 auto; padding: 22px 24px; }
+.wrap{max-width:1100px;margin:0 auto;padding:22px 24px;}
 
-  /* Config */
-  .config-row { display: grid; grid-template-columns: 1fr 180px 230px; gap: 12px; margin-bottom: 18px; }
-  .field label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
-  .field input, .field select {
-    width: 100%; background: var(--surface); border: 1px solid var(--border);
-    color: var(--text); padding: 9px 13px; border-radius: 8px; font-size: 13px; outline: none; transition: border .15s;
-  }
-  .field input:focus, .field select:focus { border-color: var(--accent); }
+/* ── Config ── */
+.config{display:grid;grid-template-columns:1fr 180px 230px;gap:12px;margin-bottom:22px;}
+.field label{display:block;font-size:11px;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.field input,.field select{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  color:var(--text);padding:9px 13px;border-radius:8px;font-size:13px;outline:none;transition:border .15s;
+}
+.field input:focus,.field select:focus{border-color:var(--accent);}
 
-  /* Presets */
-  .presets { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
-  .preset-btn {
-    background: var(--surface); border: 1px solid var(--border); color: var(--text2);
-    padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; transition: all .15s;
-  }
-  .preset-btn:hover { border-color: var(--accent); color: var(--text); }
-  .preset-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+/* ── Tool cards ── */
+.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.tool-card{
+  background:var(--surface);border:2px solid var(--border);border-radius:var(--r);
+  padding:18px 16px;cursor:pointer;transition:all .15s;
+}
+.tool-card:hover{border-color:var(--accent);}
+.tool-card.active{border-color:var(--accent);background:rgba(79,142,247,.07);}
+.tool-card.active .tc-title{color:var(--accent);}
+.tc-icon{font-size:24px;margin-bottom:8px;}
+.tc-title{font-size:14px;font-weight:700;margin-bottom:5px;}
+.tc-desc{font-size:11px;color:var(--text2);line-height:1.6;}
 
-  /* Hint */
-  .hint { font-size: 12px; color: var(--text2); padding: 9px 13px; background: var(--surface); border-left: 3px solid var(--accent); border-radius: 4px; margin-bottom: 16px; }
-  .hint .model-rec { color: var(--accent2); font-weight: 600; }
+/* ── Panels ── */
+.panel{display:none;}
+.panel.active{display:block;}
+.panel-info{
+  font-size:12px;color:var(--text2);padding:10px 14px;
+  background:var(--surface);border-left:3px solid var(--accent);
+  border-radius:4px;margin-bottom:16px;line-height:1.6;
+}
+.panel-info strong{color:var(--text);}
 
-  /* Upload */
-  .upload-zone {
-    border: 2px dashed var(--border); border-radius: var(--radius); padding: 32px;
-    text-align: center; cursor: pointer; transition: all .15s; margin-bottom: 16px;
-  }
-  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: rgba(79,142,247,.05); }
-  .upload-zone p { color: var(--text2); font-size: 13px; }
-  .upload-zone strong { color: var(--text); }
-  #fileInput { display: none; }
+/* ── Tool options ── */
+.tool-opts{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px;}
+.tool-opts .field{min-width:110px;}
+.toggle-row{display:flex;align-items:center;gap:8px;padding-bottom:2px;}
+.toggle{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.tog-s{position:absolute;inset:0;background:var(--border);border-radius:20px;transition:.2s;}
+.tog-s:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle input:checked + .tog-s{background:var(--accent);}
+.toggle input:checked + .tog-s:before{transform:translateX(16px);}
 
-  /* Thumbs */
-  .thumb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap: 9px; margin-bottom: 18px; }
-  .thumb-item { position: relative; border-radius: 8px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); }
-  .thumb-item img { width: 100%; height: 90px; object-fit: cover; display: block; }
-  .thumb-name { font-size: 10px; color: var(--text2); padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .thumb-badge { position: absolute; top: 4px; left: 4px; background: rgba(0,0,0,.7); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 8px; font-weight: 600; }
-  .thumb-badge.after  { background: rgba(56,217,169,.85); color: #0f1117; }
-  .thumb-badge.before { background: rgba(255,180,50,.85);  color: #0f1117; }
-  .thumb-badge.detail { background: rgba(79,142,247,.85);  color: #fff; }
-  .thumb-classified { position: absolute; bottom: 22px; left: 0; right: 0; background: rgba(0,0,0,.6); color: var(--text2); font-size: 9px; padding: 2px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-  .thumb-remove { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,.7); border: none; color: #fff; cursor: pointer; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; line-height: 18px; text-align: center; }
+/* ── Split slider ── */
+.split-row{
+  display:flex;align-items:center;gap:14px;margin-bottom:16px;
+  background:var(--surface);padding:12px 16px;border-radius:8px;border:1px solid var(--border);
+}
+.split-row span{font-size:12px;color:var(--text2);white-space:nowrap;}
+.split-row input[type=range]{flex:1;accent-color:var(--accent);}
+.split-val{font-size:14px;font-weight:700;color:var(--accent);min-width:40px;text-align:right;}
 
-  /* Actions */
-  .actions { display: flex; gap: 10px; align-items: center; margin-bottom: 22px; flex-wrap: wrap; }
-  .btn { padding: 9px 22px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .15s; display: flex; align-items: center; gap: 7px; }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover:not(:disabled) { background: #3a7ae8; }
-  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
-  .btn-secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
-  .btn-secondary:hover { border-color: var(--accent); }
-  .btn-success { background: var(--accent2); color: #0f1117; }
-  .btn-success:hover { background: #2bc898; }
+/* ── Upload zone ── */
+.upload-zone{
+  border:2px dashed var(--border);border-radius:var(--r);padding:30px;
+  text-align:center;cursor:pointer;transition:all .15s;margin-bottom:14px;
+}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(79,142,247,.05);}
+.upload-zone p{color:var(--text2);font-size:13px;}
+.upload-zone strong{color:var(--text);}
+.upload-zone small{font-size:11px;display:block;margin-top:4px;}
 
-  .progress-wrap { flex: 1; min-width: 180px; }
-  .progress-bar-bg { background: var(--surface2); border-radius: 20px; height: 7px; overflow: hidden; }
-  .progress-bar-fill { background: var(--accent); height: 100%; border-radius: 20px; transition: width .3s; }
-  .progress-label { font-size: 11px; color: var(--text2); margin-top: 4px; }
+/* ── Thumbnails ── */
+.thumb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:16px;}
+.thumb-item{position:relative;border-radius:8px;overflow:hidden;background:var(--surface);border:1px solid var(--border);}
+.thumb-item img{width:100%;height:80px;object-fit:cover;display:block;}
+.thumb-name{font-size:10px;color:var(--text2);padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.thumb-rm{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.75);border:none;color:#fff;cursor:pointer;border-radius:50%;width:18px;height:18px;font-size:11px;line-height:18px;text-align:center;}
 
-  /* Results */
-  .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .results-header h2 { font-size: 15px; }
-  .result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 14px; }
-  .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .result-card img { width: 100%; height: 145px; object-fit: cover; display: block; cursor: pointer; }
-  .result-info { padding: 9px 11px; }
-  .result-name { font-size: 10px; color: var(--text2); margin-bottom: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .btn-dl { width: 100%; padding: 6px; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
-  .btn-dl:hover { background: #3a7ae8; }
+/* ── Actions ── */
+.actions{display:flex;gap:10px;align-items:center;margin-bottom:24px;flex-wrap:wrap;}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:7px;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover:not(:disabled){background:#3a7ae8;}
+.btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--text);}
+.btn-secondary:hover:not(:disabled){border-color:var(--accent);}
+.btn-success{background:var(--accent2);color:#0f1117;}
+.btn-success:hover:not(:disabled){background:#2bc898;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.prog{flex:1;min-width:180px;}
+.prog-bg{background:var(--surface2);border-radius:20px;height:7px;overflow:hidden;}
+.prog-fill{background:var(--accent);height:100%;border-radius:20px;transition:width .3s;}
+.prog-lbl{font-size:11px;color:var(--text2);margin-top:4px;}
 
-  /* Lightbox */
-  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 999; align-items: center; justify-content: center; }
-  .lightbox.open { display: flex; }
-  .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
-  .lightbox-close { position: absolute; top: 16px; right: 20px; color: #fff; font-size: 28px; cursor: pointer; background: none; border: none; }
+/* ── Results ── */
+.results-hdr{display:flex;justify-content:space-between;align-items:center;margin:22px 0 12px;}
+.results-hdr h2{font-size:15px;}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.result-card img{width:100%;height:145px;object-fit:cover;cursor:pointer;display:block;}
+.result-info{padding:9px 11px;}
+.result-name{font-size:10px;color:var(--text2);margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.btn-dl{width:100%;padding:6px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;}
+.btn-dl:hover{background:#3a7ae8;}
 
-  /* Log */
-  .log-wrap { margin-top: 20px; }
-  .log-toggle { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; }
-  .log-box { background: #0a0c14; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 8px; max-height: 180px; overflow-y: auto; font-family: monospace; font-size: 11px; display: none; }
-  .log-box.open { display: block; }
-  .log-line { margin-bottom: 2px; }
-  .log-line.ok   { color: var(--accent2); }
-  .log-line.err  { color: var(--danger); }
-  .log-line.info { color: var(--accent); }
-  .log-line.warn { color: var(--warn); }
-  .log-line      { color: #606880; }
+/* ── Log ── */
+.log-wrap{margin-top:22px;}
+.log-toggle{background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:5px;}
+.log-box{background:#0a0c14;border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:8px;max-height:180px;overflow-y:auto;font-family:monospace;font-size:11px;display:none;}
+.log-box.open{display:block;}
+.log-line{margin-bottom:2px;}
+.log-line.ok{color:var(--accent2);}
+.log-line.err{color:var(--danger);}
+.log-line.info{color:var(--accent);}
+.log-line.warn{color:var(--warn);}
 
-  /* Tips */
-  .tips-wrap { margin-top: 24px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .tips-header { padding: 12px 16px; background: var(--surface); cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
-  .tips-body { display: none; padding: 16px; }
-  .tips-body.open { display: block; }
-  .tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
-  .tip-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
-  .tip-card h4 { font-size: 12px; color: var(--accent); margin-bottom: 8px; }
-  .tip-card p, .tip-card li { font-size: 11px; color: var(--text2); line-height: 1.6; }
-  .tip-card ul { padding-left: 14px; }
-  .tip-prompt { background: #0a0c14; border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 11px; color: var(--accent2); white-space: pre-wrap; cursor: pointer; margin-top: 8px; }
-  .tip-prompt:hover { border-color: var(--accent2); }
-  .tip-copy-hint { font-size: 10px; color: var(--text2); margin-top: 4px; }
+/* ── Lightbox ── */
+.lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:999;align-items:center;justify-content:center;}
+.lb.open{display:flex;}
+.lb img{max-width:90vw;max-height:90vh;border-radius:8px;}
+.lb-x{position:absolute;top:16px;right:20px;color:#fff;font-size:28px;cursor:pointer;background:none;border:none;}
 
-  /* Custom prompt */
-  #customPromptWrap { margin-bottom: 14px; }
-  #customPromptWrap textarea {
-    width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text);
-    padding: 10px 13px; border-radius: 8px; font-size: 12px; font-family: monospace;
-    outline: none; resize: vertical; min-height: 90px;
-  }
-  #customPromptWrap textarea:focus { border-color: var(--accent); }
+/* ── Spinner ── */
+.spin{animation:rot 1s linear infinite;}
+@keyframes rot{to{transform:rotate(360deg);}}
 
-  .spinner { animation: spin 1s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .table-sm { width: 100%; border-collapse: collapse; font-size: 11px; }
-  .table-sm th { color: var(--text2); font-weight: 600; text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border); }
-  .table-sm td { padding: 4px 8px; color: var(--text2); border-bottom: 1px solid var(--border); }
-  .table-sm td:first-child { color: var(--danger); font-family: monospace; }
-  .table-sm td:last-child { color: var(--accent2); font-family: monospace; }
-
-  @media (max-width: 640px) {
-    .config-row { grid-template-columns: 1fr; }
-    .tips-grid { grid-template-columns: 1fr; }
-  }
+@media(max-width:640px){
+  .config{grid-template-columns:1fr;}
+  .tools{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
@@ -156,90 +152,174 @@
     <rect width="26" height="26" rx="6" fill="#4f8ef7"/>
     <path d="M6 13l5 5 9-9" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
-  <h1>HomeImpruv <span>Photo Processor</span></h1>
+  <h1>HomeImpruv <span>Photo Tools</span></h1>
   <span class="badge">Gemini Image</span>
 </header>
 
-<div class="container">
+<div class="wrap">
 
   <!-- Config -->
-  <div class="config-row">
+  <div class="config" style="margin-top:20px">
     <div class="field">
       <label>OpenRouter API Key</label>
       <input type="password" id="apiKey" placeholder="sk-or-v1-..." autocomplete="off">
     </div>
     <div class="field">
       <label>Project Name</label>
-      <input type="text" id="projectName" placeholder="Brooklyn-HVAC">
+      <input type="text" id="project" placeholder="Brooklyn-HVAC">
     </div>
     <div class="field">
-      <label>Model</label>
-      <select id="modelSelect">
-        <option value="google/gemini-3.1-flash-image-preview">Flash 3.1 — fastest, fewer refusals</option>
+      <label>AI Model</label>
+      <select id="model">
+        <option value="google/gemini-3.1-flash-image-preview">Flash 3.1 — fast, fewer refusals</option>
         <option value="google/gemini-3-pro-image-preview">Pro 3 — best quality</option>
         <option value="google/gemini-2.5-flash-image">Flash 2.5 — cheapest</option>
       </select>
     </div>
   </div>
 
-  <!-- Presets -->
-  <div class="presets" id="presets">
-    <button class="preset-btn active" data-preset="before_after">Before / After</button>
-    <button class="preset-btn" data-preset="style_series">Style Series</button>
-    <button class="preset-btn" data-preset="upscale">Upscale HD</button>
-    <button class="preset-btn" data-preset="hvac">HVAC</button>
-    <button class="preset-btn" data-preset="plumbing">Plumbing</button>
-    <button class="preset-btn" data-preset="roofing">Roofing</button>
-    <button class="preset-btn" data-preset="interior">Interior</button>
-    <button class="preset-btn" data-preset="general">General</button>
-    <button class="preset-btn" data-preset="custom">Custom</button>
-  </div>
-
-  <!-- Hint -->
-  <div class="hint" id="presetHint"></div>
-
-  <!-- Custom prompt -->
-  <div id="customPromptWrap" style="display:none">
-    <div class="field">
-      <label>Custom Prompt</label>
-      <textarea id="customPrompt" placeholder="Describe what you want to do with these photos..."></textarea>
+  <!-- Tool selector -->
+  <div class="tools">
+    <div class="tool-card active" data-tool="clean" onclick="selectTool('clean')">
+      <div class="tc-icon">🧹</div>
+      <div class="tc-title">Remove Text &amp; Logos</div>
+      <div class="tc-desc">AI inpaints all overlaid text, watermarks, badges, and logos. Background fills naturally from surrounding pixels.</div>
+    </div>
+    <div class="tool-card" data-tool="normalize" onclick="selectTool('normalize')">
+      <div class="tc-icon">📐</div>
+      <div class="tc-title">Normalize Format</div>
+      <div class="tc-desc">Resize all photos to the same resolution with correct aspect ratio. Optional AI quality enhancement before resize.</div>
+    </div>
+    <div class="tool-card" data-tool="split" onclick="selectTool('split')">
+      <div class="tc-icon">✂️</div>
+      <div class="tc-title">Split Before / After</div>
+      <div class="tc-desc">Split a combined before/after photo (side by side) into two separate images. Adjust split point with slider.</div>
     </div>
   </div>
 
-  <!-- Upload -->
-  <div class="upload-zone" id="uploadZone">
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="margin:0 auto 10px; display:block">
-      <path d="M18 6v16M11 13l7-7 7 7M5 28h26" stroke="#8b90a8" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-    <p><strong>Drag & drop photos here</strong> or click to browse</p>
-    <p style="margin-top:5px; font-size:11px;">JPG, PNG, WEBP — up to 20 files</p>
-    <input type="file" id="fileInput" multiple accept="image/*">
+  <!-- ══ Panel: Clean ══ -->
+  <div id="panel-clean" class="panel active">
+    <div class="panel-info">
+      Upload photos that have overlaid <strong>text captions, watermarks, badges, phone numbers, or logos</strong>.
+      AI will inpaint each area with natural background texture — the actual work stays untouched.
+    </div>
+    <div class="upload-zone" id="cleanZone">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="margin:0 auto 8px;display:block">
+        <path d="M16 5v14M10 11l6-6 6 6M4 25h24" stroke="#8b90a8" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <p><strong>Drag &amp; drop photos</strong> or click to browse</p>
+      <small>JPG, PNG, WEBP — up to 20 files</small>
+      <input type="file" id="cleanInput" multiple accept="image/*" style="display:none">
+    </div>
+    <div class="thumb-grid" id="cleanThumbs"></div>
+    <div class="actions" id="cleanActions" style="display:none">
+      <button class="btn btn-primary" id="cleanRunBtn" onclick="runClean()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polygon points="2,1 12,6.5 2,12" fill="#fff"/></svg>
+        Remove Text &amp; Logos
+      </button>
+      <button class="btn btn-secondary" onclick="clearTool('clean')">Clear</button>
+      <div class="prog" id="cleanProg" style="display:none">
+        <div class="prog-bg"><div class="prog-fill" id="cleanFill" style="width:0%"></div></div>
+        <div class="prog-lbl" id="cleanLbl"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- Thumbnails -->
-  <div class="thumb-grid" id="thumbGrid"></div>
-
-  <!-- Actions -->
-  <div class="actions" id="actionsRow" style="display:none">
-    <button class="btn btn-primary" id="processBtn" onclick="startProcessing()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <polygon points="3,2 12,7 3,12" fill="#fff"/>
+  <!-- ══ Panel: Normalize ══ -->
+  <div id="panel-normalize" class="panel">
+    <div class="panel-info">
+      Resize all photos to the <strong>same resolution and format</strong>. Image is fitted inside the target with white padding — no cropping.
+      Turn on <strong>AI Enhance</strong> to improve quality, color, and sharpness before resizing.
+    </div>
+    <div class="tool-opts">
+      <div class="field">
+        <label>Width (px)</label>
+        <input type="number" id="normW" value="1920" min="100" max="8000" style="width:100px">
+      </div>
+      <div class="field">
+        <label>Height (px)</label>
+        <input type="number" id="normH" value="1080" min="100" max="8000" style="width:100px">
+      </div>
+      <div class="field">
+        <label>Quick Preset</label>
+        <select id="normPreset" onchange="applyPreset()" style="width:180px">
+          <option value="">— select —</option>
+          <option value="1920x1080">1920 × 1080 &nbsp;Full HD</option>
+          <option value="2560x1440">2560 × 1440 &nbsp;2K</option>
+          <option value="3840x2160">3840 × 2160 &nbsp;4K</option>
+          <option value="1280x720">1280 × 720 &nbsp;HD</option>
+          <option value="1080x1080">1080 × 1080 &nbsp;Square</option>
+          <option value="800x600">800 × 600 &nbsp;Web small</option>
+        </select>
+      </div>
+      <div class="toggle-row">
+        <label class="toggle"><input type="checkbox" id="normAI" checked><span class="tog-s"></span></label>
+        <span style="font-size:12px;color:var(--text2)">AI quality enhance first</span>
+      </div>
+    </div>
+    <div class="upload-zone" id="normZone">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="margin:0 auto 8px;display:block">
+        <path d="M16 5v14M10 11l6-6 6 6M4 25h24" stroke="#8b90a8" stroke-width="2" stroke-linecap="round"/>
       </svg>
-      Process Photos
-    </button>
-    <button class="btn btn-secondary" id="classifyBtn" onclick="classifyAll()" style="display:none">&#128269; Auto-Classify</button>
-    <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
-    <div class="progress-wrap" id="progressWrap" style="display:none">
-      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
-      <div class="progress-label" id="progressLabel">Preparing...</div>
+      <p><strong>Drag &amp; drop photos</strong> or click to browse</p>
+      <small>Up to 20 files</small>
+      <input type="file" id="normInput" multiple accept="image/*" style="display:none">
+    </div>
+    <div class="thumb-grid" id="normThumbs"></div>
+    <div class="actions" id="normActions" style="display:none">
+      <button class="btn btn-primary" id="normRunBtn" onclick="runNormalize()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polygon points="2,1 12,6.5 2,12" fill="#fff"/></svg>
+        Normalize All
+      </button>
+      <button class="btn btn-secondary" onclick="clearTool('normalize')">Clear</button>
+      <div class="prog" id="normProg" style="display:none">
+        <div class="prog-bg"><div class="prog-fill" id="normFill" style="width:0%"></div></div>
+        <div class="prog-lbl" id="normLbl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Panel: Split ══ -->
+  <div id="panel-split" class="panel">
+    <div class="panel-info">
+      Upload photos that show <strong>before on the left</strong> and <strong>after on the right</strong> (combined in one image).
+      Adjust the split point using the slider, then click Split — each photo produces two separate files:
+      <strong>filename_before.jpg</strong> and <strong>filename_after.jpg</strong>.
+      No AI needed — instant canvas split.
+    </div>
+    <div class="split-row">
+      <span>Split position</span>
+      <input type="range" id="splitPct" min="5" max="95" value="50"
+             oninput="document.getElementById('splitVal').textContent=this.value+'%'; previewSplitLine()">
+      <span class="split-val" id="splitVal">50%</span>
+    </div>
+    <div class="upload-zone" id="splitZone">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="margin:0 auto 8px;display:block">
+        <path d="M16 5v14M10 11l6-6 6 6M4 25h24" stroke="#8b90a8" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <p><strong>Drag &amp; drop combined before/after photos</strong> or click to browse</p>
+      <small>Each image → before.jpg + after.jpg &nbsp;|&nbsp; Up to 20 files</small>
+      <input type="file" id="splitInput" multiple accept="image/*" style="display:none">
+    </div>
+    <div class="thumb-grid" id="splitThumbs"></div>
+    <div class="actions" id="splitActions" style="display:none">
+      <button class="btn btn-primary" id="splitRunBtn" onclick="runSplit()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polygon points="2,1 12,6.5 2,12" fill="#fff"/></svg>
+        Split All Photos
+      </button>
+      <button class="btn btn-secondary" onclick="clearTool('split')">Clear</button>
+      <div class="prog" id="splitProg" style="display:none">
+        <div class="prog-bg"><div class="prog-fill" id="splitFill" style="width:0%"></div></div>
+        <div class="prog-lbl" id="splitLbl"></div>
+      </div>
     </div>
   </div>
 
   <!-- Results -->
   <div id="resultsSection" style="display:none">
-    <div class="results-header">
-      <h2>&#10003; Results <span id="resultCount" style="color:var(--text2); font-weight:400; font-size:13px"></span></h2>
-      <button class="btn btn-success" id="downloadZipBtn" onclick="downloadZip()">&#8595; Download ZIP</button>
+    <div class="results-hdr">
+      <h2>&#10003; Results <span id="resultCount" style="color:var(--text2);font-weight:400;font-size:13px"></span></h2>
+      <button class="btn btn-success" id="zipBtn" onclick="downloadZip()">&#8595; Download ZIP</button>
     </div>
     <div class="result-grid" id="resultGrid"></div>
   </div>
@@ -255,701 +335,410 @@
     <div class="log-box" id="logBox"></div>
   </div>
 
-  <!-- Tips -->
-  <div class="tips-wrap">
-    <div class="tips-header" onclick="toggleTips()">
-      <span>&#9881; Tips & Prompt Guide</span>
-      <svg id="tipsArrow" width="12" height="12" viewBox="0 0 12 12" style="transition:transform .15s">
-        <path d="M2 4l4 4 4-4" stroke="#8b90a8" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      </svg>
-    </div>
-    <div class="tips-body" id="tipsBody">
-      <div class="tips-grid">
-        <div class="tip-card">
-          <h4>Common Issues</h4>
-          <table class="table-sm" style="margin-top:4px">
-            <tr><td>CORS file://</td><td colspan="2" style="color:var(--text2)">Run start_server.bat</td></tr>
-            <tr><td>Safety refusal</td><td colspan="2" style="color:var(--text2)">Use Flash model + auto-retry</td></tr>
-            <tr><td>No image back</td><td colspan="2" style="color:var(--text2)">Check debug log (3 fallback levels)</td></tr>
-            <tr><td>Blurry result</td><td colspan="2" style="color:var(--text2)">Use Pro model, add "sharpen"</td></tr>
-          </table>
-        </div>
-        <div class="tip-card">
-          <h4>Dangerous Words &#8594; Safety Filter</h4>
-          <table class="table-sm" style="margin-top:4px">
-            <tr><th>&#10007; Avoid</th><th>&#10003; Use instead</th></tr>
-            <tr><td>remove watermark</td><td>inpaint overlaid graphics</td></tr>
-            <tr><td>delete logo</td><td>clean up graphic overlay</td></tr>
-            <tr><td>erase branding</td><td>fill area with background</td></tr>
-            <tr><td>remove text</td><td>inpaint text caption area</td></tr>
-            <tr><td>fake photo</td><td>retouch / enhance</td></tr>
-          </table>
-        </div>
-        <div class="tip-card">
-          <h4>Minimal Text Removal (copy &amp; paste)</h4>
-          <div class="tip-prompt" onclick="copyPrompt(this)">Inpaint the overlaid text captions and graphic badges on this photo. Fill each area with the natural background texture and color from the surrounding region. Leave the entire photo content — equipment, walls, surfaces, and lighting — exactly unchanged.</div>
-          <div class="tip-copy-hint">Click to copy</div>
-        </div>
-        <div class="tip-card">
-          <h4>Before/After Pair (copy &amp; paste)</h4>
-          <div class="tip-prompt" onclick="copyPrompt(this)">I am providing two home improvement photos as a BEFORE/AFTER pair. FIRST IMAGE = BEFORE. SECOND IMAGE = AFTER. Process both and return them with IDENTICAL visual style: inpaint any overlaid text naturally, match white balance 5500K, balanced exposure, lifted shadows, +10% saturation. Sharpen equipment edges equally. Return BOTH images.</div>
-          <div class="tip-copy-hint">Click to copy</div>
-        </div>
-      </div>
-      <div class="tip-card" style="margin-top:0">
-        <h4>Model Selection Guide</h4>
-        <table class="table-sm">
-          <tr><th>Task</th><th>Recommended Model</th><th>Reason</th></tr>
-          <tr><td style="color:var(--text2)">Text removal</td><td style="color:var(--accent2)">Flash 3.1</td><td style="color:var(--text2)">Fewer safety refusals</td></tr>
-          <tr><td style="color:var(--text2)">Before/After pair</td><td style="color:var(--accent2)">Flash 3.1</td><td style="color:var(--text2)">Better with paired images</td></tr>
-          <tr><td style="color:var(--text2)">Style series</td><td style="color:var(--accent2)">Pro 3</td><td style="color:var(--text2)">Precise color grading</td></tr>
-          <tr><td style="color:var(--text2)">Text overlay</td><td style="color:var(--accent2)">Pro 3</td><td style="color:var(--text2)">Better text rendering</td></tr>
-          <tr><td style="color:var(--text2)">High volume</td><td style="color:var(--accent2)">Flash 2.5</td><td style="color:var(--text2)">Cheapest</td></tr>
-        </table>
-      </div>
-    </div>
-  </div>
-
-</div>
+</div><!-- /wrap -->
 
 <!-- Lightbox -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">&#215;</button>
-  <img id="lightboxImg" src="" alt="">
+<div class="lb" id="lb" onclick="closeLb()">
+  <button class="lb-x">&#215;</button>
+  <img id="lbImg" src="" alt="">
 </div>
 
 <script>
 // ─── State ────────────────────────────────────────────────────────────────────
-let uploadedFiles = [];
-let results = [];
-let classifications = {}; // index → {type, stage, description}
-let currentPreset = 'before_after';
+const toolFiles = { clean: [], normalize: [], split: [] };
+let results      = [];
 let isProcessing = false;
 
-// ─── Preset config ────────────────────────────────────────────────────────────
-const PRESET_CONFIG = {
-  before_after:  { hint: 'Upload photos in pairs: before_1, after_1, before_2, after_2... Both images sent in one request for consistent style.', model: 'google/gemini-3.1-flash-image-preview' },
-  style_series:  { hint: 'Upload series of photos. First image is the reference — all others will be matched to its style.', model: 'google/gemini-3-pro-image-preview' },
-  upscale:       { hint: 'Photos will be AI-enhanced then canvas-resized to exactly 1920×1080. All output files identical dimensions.', model: 'google/gemini-3.1-flash-image-preview' },
-  hvac:          { hint: 'Optimized for HVAC — sharpens units, ductwork, metal surfaces. Inpaints overlaid text naturally.', model: 'google/gemini-3.1-flash-image-preview' },
-  plumbing:      { hint: 'Optimized for plumbing — sharpens pipes, fixtures, connections.', model: 'google/gemini-3.1-flash-image-preview' },
-  roofing:       { hint: 'Optimized for roofing — enhances shingles, flashing, sky exposure.', model: 'google/gemini-3.1-flash-image-preview' },
-  interior:      { hint: 'Optimized for interiors — warm 5500K, surface textures, lifted shadows.', model: 'google/gemini-3-pro-image-preview' },
-  general:       { hint: 'General cleanup — inpaints overlaid text, corrects color, sharpens details.', model: 'google/gemini-3.1-flash-image-preview' },
-  custom:        { hint: 'Write your own processing instructions below.', model: null },
-};
+// ─── Prompts ──────────────────────────────────────────────────────────────────
+const P_CLEAN = `Carefully inpaint ALL overlaid text captions, graphic badges, watermarks, company logos, phone numbers, and website URLs on this photo.
+Fill every such area with the natural background texture and color of the surrounding pixels.
+Do not alter any actual photo content — equipment, walls, surfaces, people, or lighting must stay exactly unchanged.
+Return only the cleaned photo with no overlays.`;
 
-// ─── Prompts (from PROMPTS.md) ────────────────────────────────────────────────
-const PROMPTS = {
-  before_after: `I am providing two home improvement photos as a BEFORE/AFTER pair.
-FIRST IMAGE = BEFORE the work. SECOND IMAGE = AFTER the work.
+const P_CLEAN_SOFT = `Please retouch this contractor photo. It has some text or graphic elements overlaid on it. Remove them and fill those areas naturally with the background. Do not change the rest of the image. Return the cleaned photo.`;
 
-Process both images and return them with IDENTICAL visual style:
-
-STEP 1 — Clean up: Inpaint any overlaid text, captions, or graphic badges in both images so background fills naturally.
-
-STEP 2 — Match style: Apply identical color grading to both:
-- White balance: neutral daylight, 5500K color temperature
-- Exposure: balanced, no blown highlights, lifted shadows
-- Contrast: medium-low — detail visible in dark and bright areas
-- Saturation: natural +10%, not oversaturated
-- Color cast: remove all yellow/orange/green artificial light cast
-
-STEP 3 — Sharpen details equally in both images: equipment edges, pipe textures, wall surfaces, structural elements.
-
-STEP 4 — Preserve all installed work exactly as photographed.
-
-Return BOTH processed images. They must look shot in the same conditions by the same photographer.`,
-
-  style_series: `REFERENCE IMAGE (first): This is the approved master style for this project. Analyze its: white balance, exposure level, color temperature, contrast ratio, and overall color grading.
-
-PHOTO TO MATCH (second image): Retouch this photo to match the visual style of the reference exactly:
-- Apply same color temperature and white balance
-- Match brightness and shadow depth
-- Match contrast and saturation level
-- Inpaint any overlaid text or graphic badges naturally
-- Sharpen structural details and equipment edges
-- Do not alter the actual work, installation, or composition
-
-Output must look like both photos were taken in the same session.`,
-
-  upscale: `Process this home improvement photo in two steps:
-
-STEP 1 — Clean: Inpaint any overlaid text, captions, or graphic overlays so background fills naturally without visible traces.
-
-STEP 2 — Upscale to Full HD (1920x1080px): Reconstruct fine detail, sharpen structural edges and equipment surfaces, reduce compression artifacts, improve color clarity.
-
-Preserve original composition and all installed work exactly.
-Return a single 1920x1080 processed image.`,
-
-  hvac: `Retouch this HVAC contractor photo to professional portfolio standard:
-- Inpaint any overlaid text, captions, and graphic badges naturally
+const P_ENHANCE = `Retouch this home improvement photo to professional portfolio standard:
 - Correct to neutral daylight white balance (5500K)
-- Balance exposure: lift shadows +20%, protect highlights
-- Boost local micro-contrast on HVAC units, ductwork, metal surfaces
-- Reduce yellow/green color cast from artificial indoor lighting
-- Apply subtle sharpening to vents, brackets, installation details
-- Preserve the installation and work exactly as photographed
-Result: clean, consistent quality suitable for HVAC contractor portfolio, Houzz, Google Business.`,
-
-  plumbing: `Retouch this plumbing contractor photo to professional portfolio standard:
-- Inpaint any overlaid text and graphic elements naturally
-- Correct to neutral daylight white balance (5500K)
-- Balance exposure: lift shadows, protect highlights
-- Boost micro-contrast on pipes, fixtures, fittings, connections
-- Apply sharpening to pipe edges and joint details
-- Preserve the work and installation exactly as photographed
-Result: suitable for plumbing contractor portfolio and Google Business.`,
-
-  roofing: `Retouch this roofing contractor photo to professional portfolio standard:
-- Inpaint any overlaid text and graphic badges naturally
-- Correct sky exposure to natural daylight, balance overall exposure
-- Enhance shingle texture, flashing details, and structural lines
-- Sharpen roof edges, ridge lines, and material surfaces
-- Apply neutral 5500K white balance correction
-- Preserve the roofing work and installation exactly as photographed
-Result: suitable for roofing contractor portfolio and Google Business.`,
-
-  interior: `Retouch this interior renovation photo to professional real estate standard:
-- Inpaint any overlaid text and graphic elements naturally
-- Correct to warm-neutral daylight white balance (5500K)
-- Balance exposure: fill in shadows, reduce hot spots
-- Enhance surface textures — flooring, walls, countertops, fixtures
-- Apply subtle micro-contrast to structural details and finishes
-- Preserve the renovation work and space exactly as photographed
-Result: suitable for interior portfolio, real estate listing, Houzz.`,
-
-  general: `Retouch this home improvement photo to professional contractor portfolio standard:
-- Inpaint any overlaid text or graphic elements naturally
-- Correct to neutral daylight white balance (5500K)
-- Balance exposure: lift shadows +20%, protect highlights
+- Lift shadows +20%, protect highlights, no blown areas
 - Boost local micro-contrast on equipment and structural elements
-- Reduce yellow/green color cast from artificial indoor lighting
-- Apply subtle sharpening to pipes, fixtures, edges, surfaces
-- Preserve the installation and work exactly as photographed
-Result: clean, consistent quality matching professional portfolio photography.`,
-};
+- Reduce yellow/green artificial-light color cast
+- Apply subtle sharpening to edges and surfaces
+- Preserve all actual work exactly as photographed
+Return the retouched photo.`;
 
-// Fallback soft prompt (safety filter triggered)
-const SOFT_FALLBACK = `Please retouch this construction site photo. There are some graphic elements overlaid on the image — clean them up so the background shows through naturally. Improve the overall photo quality slightly. Return the retouched photo.`;
-
-// ─── Classification prompt ────────────────────────────────────────────────────
-const CLASSIFY_PROMPT = `Analyze this home improvement contractor photo. Respond with ONLY a valid JSON object, no other text:
-{"type":"hvac","stage":"before","description":"brief 4-word subject"}
-
-Rules for type:
-- "hvac" = AC units, ductwork, vents, heat pumps, thermostats, furnaces
-- "plumbing" = pipes, faucets, toilets, water heaters, drains, valves
-- "roofing" = shingles, gutters, roof exterior, flashing, soffits, fascia
-- "interior" = rooms, walls, floors, ceilings, cabinets, tiles, paint, drywall
-- "general" = electrical, framing, insulation, concrete, landscaping, or unclear
-
-Rules for stage:
-- "before" = unfinished, old, damaged, dirty, messy, pre-installation state
-- "after" = finished, new, clean, installed, completed, polished result
-- "detail" = close-up shot or unclear before/after status`;
-
-// ─── Persist settings ─────────────────────────────────────────────────────────
+// ─── Settings persistence ─────────────────────────────────────────────────────
 window.addEventListener('load', () => {
-  const k = localStorage.getItem('or_api_key');
-  if (k) document.getElementById('apiKey').value = k;
-  const p = localStorage.getItem('project_name');
-  if (p) document.getElementById('projectName').value = p;
-  const m = localStorage.getItem('model_override');
-  if (m) document.getElementById('modelSelect').value = m;
-  updateHint();
+  const vals = [['apiKey','or_key'],['project','or_project'],['model','or_model']];
+  vals.forEach(([id, key]) => { const v = localStorage.getItem(key); if (v) document.getElementById(id).value = v; });
 });
-document.getElementById('apiKey').addEventListener('change', e => localStorage.setItem('or_api_key', e.target.value.trim()));
-document.getElementById('projectName').addEventListener('change', e => localStorage.setItem('project_name', e.target.value.trim()));
-document.getElementById('modelSelect').addEventListener('change', e => localStorage.setItem('model_override', e.target.value));
+document.getElementById('apiKey').addEventListener('change', e => localStorage.setItem('or_key',     e.target.value.trim()));
+document.getElementById('project').addEventListener('change', e => localStorage.setItem('or_project', e.target.value.trim()));
+document.getElementById('model').addEventListener('change',   e => localStorage.setItem('or_model',   e.target.value));
 
-// ─── Presets ──────────────────────────────────────────────────────────────────
-document.getElementById('presets').addEventListener('click', e => {
-  const btn = e.target.closest('.preset-btn');
-  if (!btn) return;
-  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentPreset = btn.dataset.preset;
-  document.getElementById('customPromptWrap').style.display = currentPreset === 'custom' ? 'block' : 'none';
-  updateHint();
-  refreshBadges();
-});
-
-function updateHint() {
-  const cfg = PRESET_CONFIG[currentPreset];
-  if (!cfg) return;
-  const modelName = cfg.model ? cfg.model.replace('google/', '').replace('-image-preview','').replace('-image','') : null;
-  const modelHint = modelName ? ` &nbsp;|&nbsp; Recommended model: <span class="model-rec">${modelName}</span>` : '';
-  document.getElementById('presetHint').innerHTML = cfg.hint + modelHint;
-
-  // Auto-set model if not manually overridden in this session
-  if (cfg.model && !localStorage.getItem('model_override')) {
-    document.getElementById('modelSelect').value = cfg.model;
-  }
+// ─── Tool selector ────────────────────────────────────────────────────────────
+function selectTool(name) {
+  document.querySelectorAll('.tool-card').forEach(c => c.classList.toggle('active', c.dataset.tool === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
 }
 
-// ─── Upload ───────────────────────────────────────────────────────────────────
-const uploadZone = document.getElementById('uploadZone');
-const fileInput  = document.getElementById('fileInput');
+function applyPreset() {
+  const v = document.getElementById('normPreset').value;
+  if (!v) return;
+  const [w, h] = v.split('x').map(Number);
+  document.getElementById('normW').value = w;
+  document.getElementById('normH').value = h;
+}
 
-uploadZone.addEventListener('click', () => fileInput.click());
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-uploadZone.addEventListener('drop', e => {
-  e.preventDefault(); uploadZone.classList.remove('drag-over');
-  handleFiles(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
-});
-fileInput.addEventListener('change', e => { handleFiles(Array.from(e.target.files)); fileInput.value = ''; });
-
-function handleFiles(files) {
-  files.slice(0, 20 - uploadedFiles.length).forEach(f => {
-    if (!uploadedFiles.find(u => u.name === f.name && u.size === f.size)) uploadedFiles.push(f);
+// ─── Upload setup ─────────────────────────────────────────────────────────────
+[
+  ['cleanZone', 'cleanInput', 'clean',     'cleanActions'],
+  ['normZone',  'normInput',  'normalize', 'normActions'],
+  ['splitZone', 'splitInput', 'split',     'splitActions'],
+].forEach(([zId, inId, key, actId]) => {
+  const zone  = document.getElementById(zId);
+  const input = document.getElementById(inId);
+  zone.addEventListener('click',     () => input.click());
+  zone.addEventListener('dragover',  e  => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', ()  => zone.classList.remove('drag'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag');
+    addFiles(key, actId, Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
   });
-  renderThumbs();
-  const hasFiles = uploadedFiles.length > 0;
-  document.getElementById('actionsRow').style.display = hasFiles ? 'flex' : 'none';
-  document.getElementById('classifyBtn').style.display = hasFiles ? 'flex' : 'none';
-}
+  input.addEventListener('change', e => { addFiles(key, actId, Array.from(e.target.files)); input.value = ''; });
+});
 
-// IMPORTANT: Use FileReader for thumbnails — never createObjectURL (CORS issues)
-function loadThumbDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+function addFiles(key, actId, files) {
+  const arr = toolFiles[key];
+  files.slice(0, 20 - arr.length).forEach(f => {
+    if (!arr.find(u => u.name === f.name && u.size === f.size)) arr.push(f);
   });
+  renderThumbs(key);
+  document.getElementById(actId).style.display = arr.length ? 'flex' : 'none';
 }
 
-async function renderThumbs() {
-  const grid = document.getElementById('thumbGrid');
+// ─── Thumbnails ───────────────────────────────────────────────────────────────
+const GRID_IDS   = { clean:'cleanThumbs', normalize:'normThumbs', split:'splitThumbs' };
+const ACTION_IDS = { clean:'cleanActions', normalize:'normActions', split:'splitActions' };
+
+function readDataURL(file) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsDataURL(file); });
+}
+
+async function renderThumbs(key) {
+  const grid = document.getElementById(GRID_IDS[key]);
   grid.innerHTML = '';
-  for (let i = 0; i < uploadedFiles.length; i++) {
-    const file = uploadedFiles[i];
-    const isAfter = currentPreset === 'before_after' && i % 2 === 1;
-    const badge = getBadge(i);
-    const dataURL = await loadThumbDataURL(file);
-    const div = document.createElement('div');
-    div.className = 'thumb-item';
-    div.innerHTML = `
-      <img src="${dataURL}" alt="">
-      <div class="${getBadgeClass(i)}">${badge}</div>
-      <div class="thumb-classified">${classifications[i]?.description || ''}</div>
-      <button class="thumb-remove" onclick="removeFile(${i})">&#215;</button>
-      <div class="thumb-name">${file.name}</div>`;
-    grid.appendChild(div);
+  for (let i = 0; i < toolFiles[key].length; i++) {
+    const url = await readDataURL(toolFiles[key][i]);
+    const d = document.createElement('div');
+    d.className = 'thumb-item';
+    d.innerHTML = `<img src="${url}" alt=""><button class="thumb-rm" onclick="removeFile('${key}',${i})">&#215;</button><div class="thumb-name">${toolFiles[key][i].name}</div>`;
+    grid.appendChild(d);
   }
 }
 
-function getBadge(i) {
-  if (classifications[i]) {
-    const { type, stage } = classifications[i];
-    const t = { hvac:'HVAC', plumbing:'PLUMB', roofing:'ROOF', interior:'INT', general:'GEN' }[type] || type.toUpperCase();
-    return `${t} · ${stage.toUpperCase()}`;
-  }
-  if (currentPreset === 'before_after') return i % 2 === 0 ? 'BEFORE' : 'AFTER';
-  if (currentPreset === 'style_series') return i === 0 ? 'REF' : `#${i}`;
-  return `#${i + 1}`;
+function removeFile(key, i) {
+  toolFiles[key].splice(i, 1);
+  renderThumbs(key);
+  document.getElementById(ACTION_IDS[key]).style.display = toolFiles[key].length ? 'flex' : 'none';
 }
 
-function getBadgeClass(i) {
-  if (classifications[i]) return 'thumb-badge ' + classifications[i].stage;
-  if (currentPreset === 'before_after') return 'thumb-badge' + (i % 2 === 1 ? ' after' : '');
-  return 'thumb-badge';
-}
-
-function refreshBadges() {
-  document.querySelectorAll('.thumb-item').forEach((item, i) => {
-    const badge = item.querySelector('.thumb-badge');
-    badge.textContent = getBadge(i);
-    badge.className = getBadgeClass(i);
-    const desc = item.querySelector('.thumb-classified');
-    if (desc) desc.textContent = classifications[i]?.description || '';
-  });
-}
-
-function updateThumbBadge(i) {
-  const items = document.querySelectorAll('.thumb-item');
-  if (!items[i]) return;
-  const badge = items[i].querySelector('.thumb-badge');
-  badge.textContent = getBadge(i);
-  badge.className = getBadgeClass(i);
-  const desc = items[i].querySelector('.thumb-classified');
-  if (desc) desc.textContent = classifications[i]?.description || '';
-}
-
-function removeFile(i) {
-  uploadedFiles.splice(i, 1);
-  delete classifications[i];
-  // Re-index classifications
-  const newCls = {};
-  Object.keys(classifications).forEach(k => {
-    const ki = parseInt(k);
-    if (ki > i) newCls[ki - 1] = classifications[k];
-    else newCls[k] = classifications[k];
-  });
-  classifications = newCls;
-  renderThumbs();
-  const hasFiles = uploadedFiles.length > 0;
-  document.getElementById('actionsRow').style.display = hasFiles ? 'flex' : 'none';
-  document.getElementById('classifyBtn').style.display = hasFiles ? 'flex' : 'none';
-}
-
-function clearAll() {
-  uploadedFiles = []; results = []; classifications = {};
-  document.getElementById('thumbGrid').innerHTML = '';
-  document.getElementById('actionsRow').style.display = 'none';
-  document.getElementById('classifyBtn').style.display = 'none';
+function clearTool(key) {
+  toolFiles[key] = [];
+  document.getElementById(GRID_IDS[key]).innerHTML = '';
+  document.getElementById(ACTION_IDS[key]).style.display = 'none';
+  results = [];
   document.getElementById('resultsSection').style.display = 'none';
   document.getElementById('resultGrid').innerHTML = '';
-  document.getElementById('progressWrap').style.display = 'none';
   clearLog();
-  const cb = document.getElementById('classifyBtn');
-  cb.disabled = false; cb.innerHTML = '&#128269; Auto-Classify';
 }
 
-// ─── Image helpers ────────────────────────────────────────────────────────────
-// Use FileReader — never createObjectURL
-function compressImage(file, maxPx = 1536, quality = 0.88) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => {
+// ─── Image helpers ─────────────────────────────────────────────────────────────
+function compress(file, maxPx = 1536, q = 0.88) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => {
       const img = new Image();
       img.onload = () => {
-        let { width: w, height: h } = img;
-        if (Math.max(w, h) > maxPx) {
-          const r = maxPx / Math.max(w, h);
-          w = Math.round(w * r); h = Math.round(h * r);
-        }
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
+        let w = img.width, h = img.height;
+        if (Math.max(w, h) > maxPx) { const s = maxPx / Math.max(w, h); w = Math.round(w*s); h = Math.round(h*s); }
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
         c.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(c.toDataURL('image/jpeg', quality).split(',')[1]);
+        res(c.toDataURL('image/jpeg', q).split(',')[1]);
       };
-      img.onerror = reject;
-      img.src = e.target.result;
+      img.onerror = rej; img.src = e.target.result;
     };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+    r.onerror = rej; r.readAsDataURL(file);
   });
 }
 
-function resizeToHD(b64) {
-  return new Promise(resolve => {
+function canvasResize(b64, tw, th) {
+  return new Promise(res => {
     const img = new Image();
     img.onload = () => {
-      const c = document.createElement('canvas');
-      c.width = 1920; c.height = 1080;
+      const c = document.createElement('canvas'); c.width = tw; c.height = th;
       const ctx = c.getContext('2d');
-      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 1920, 1080);
-      const r = Math.min(1920 / img.width, 1080 / img.height);
-      const w = Math.round(img.width * r), h = Math.round(img.height * r);
-      ctx.drawImage(img, Math.round((1920 - w) / 2), Math.round((1080 - h) / 2), w, h);
-      resolve(c.toDataURL('image/jpeg', 0.92).split(',')[1]);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, tw, th);
+      const s = Math.min(tw / img.width, th / img.height);
+      const w = Math.round(img.width * s), h = Math.round(img.height * s);
+      ctx.drawImage(img, Math.round((tw - w) / 2), Math.round((th - h) / 2), w, h);
+      res(c.toDataURL('image/jpeg', 0.92).split(',')[1]);
     };
     img.src = 'data:image/jpeg;base64,' + b64;
   });
 }
 
-function getPrompt() {
-  if (currentPreset === 'custom') return document.getElementById('customPrompt').value.trim() || PROMPTS.general;
-  return PROMPTS[currentPreset] || PROMPTS.general;
+// Split image at pct% from left — returns { before, after } as base64
+function canvasSplit(file, pct) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const splitX = Math.round(img.width * pct / 100);
+
+        const cB = document.createElement('canvas');
+        cB.width = splitX; cB.height = img.height;
+        cB.getContext('2d').drawImage(img, 0, 0, splitX, img.height, 0, 0, splitX, img.height);
+
+        const cA = document.createElement('canvas');
+        cA.width = img.width - splitX; cA.height = img.height;
+        cA.getContext('2d').drawImage(img, splitX, 0, img.width - splitX, img.height, 0, 0, img.width - splitX, img.height);
+
+        res({
+          before: cB.toDataURL('image/jpeg', 0.92).split(',')[1],
+          after:  cA.toDataURL('image/jpeg', 0.92).split(',')[1],
+        });
+      };
+      img.onerror = rej; img.src = e.target.result;
+    };
+    r.onerror = rej; r.readAsDataURL(file);
+  });
+}
+
+function baseName(file) { return file.name.replace(/\.[^.]+$/, ''); }
+function buildName(project, suffix, n) {
+  return `${(project || 'Project').replace(/\s+/g,'-')}_${suffix}_${String(n).padStart(2,'0')}.jpg`;
 }
 
 // ─── OpenRouter API ───────────────────────────────────────────────────────────
-async function callOpenRouter(images, prompt, apiKey, model) {
-  const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+async function callAPI(images, prompt, apiKey, model) {
+  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': 'https://homeimpruv.com',
-      'X-Title': 'HomeImpruv Photo Processor',
+      'X-Title': 'HomeImpruv Photo Tools',
     },
     body: JSON.stringify({
       model,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'text', text: prompt },
-          ...images.map(b64 => ({ type: 'image_url', image_url: { url: `data:image/jpeg;base64,${b64}` } }))
-        ]
-      }],
+      messages: [{ role: 'user', content: [
+        { type: 'text', text: prompt },
+        ...images.map(b => ({ type: 'image_url', image_url: { url: `data:image/jpeg;base64,${b}` } }))
+      ]}],
       modalities: ['image', 'text'],
     })
   });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(`API ${resp.status}: ${err?.error?.message || resp.statusText}`);
-  }
-  return resp.json();
+  if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(`API ${r.status}: ${e?.error?.message || r.statusText}`); }
+  return r.json();
 }
 
-// ─── Response parsing — 3 fallback levels ────────────────────────────────────
-function extractImages(data) {
+function extractImg(data) {
   const msg = data?.choices?.[0]?.message;
-  if (!msg) return [];
-  const out = [];
-
-  // Level 1: msg.images[]
+  if (!msg) return null;
   if (Array.isArray(msg.images)) {
-    msg.images.forEach(img => {
-      const url = img?.image_url?.url || img?.url;
-      if (url) out.push(url.replace(/^data:image\/\w+;base64,/, ''));
-    });
+    const u = msg.images[0]?.image_url?.url || msg.images[0]?.url;
+    if (u) return u.replace(/^data:image\/\w+;base64,/, '');
   }
-
-  // Level 2: content[].type === "image_url"
-  if (!out.length && Array.isArray(msg.content)) {
-    msg.content.forEach(c => {
-      if (c.type === 'image_url' && c.image_url?.url) {
-        out.push(c.image_url.url.replace(/^data:image\/\w+;base64,/, ''));
-      }
-    });
+  if (Array.isArray(msg.content)) {
+    const c = msg.content.find(c => c.type === 'image_url');
+    if (c?.image_url?.url) return c.image_url.url.replace(/^data:image\/\w+;base64,/, '');
   }
-
-  // Level 3: data:image base64 in text
-  if (!out.length) {
-    const text = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg);
-    const rx = /data:image\/[^;]+;base64,([A-Za-z0-9+\/=]+)/g;
-    let m;
-    while ((m = rx.exec(text)) !== null) out.push(m[1]);
-  }
-
-  if (!out.length) log('DEBUG response: ' + JSON.stringify(data).substring(0, 500), 'warn');
-  return out;
+  const text = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg);
+  const m = text.match(/data:image\/[^;]+;base64,([A-Za-z0-9+\/=]+)/);
+  if (m) return m[1];
+  log('No image in response: ' + JSON.stringify(data).slice(0, 400), 'warn');
+  return null;
 }
 
-function isSafetyRefusal(data) {
+function isRefusal(data) {
   const t = JSON.stringify(data).toLowerCase();
-  return ['just a language model', "i'm not able", "can't process", "cannot process image", "i cannot", "i'm unable", "i am not able"].some(s => t.includes(s));
+  return ["just a language model","i'm not able","can't process","cannot process","i cannot","i'm unable","i am not able"].some(s => t.includes(s));
 }
 
-// ─── File naming ──────────────────────────────────────────────────────────────
-function buildFilename(project, type, num) {
-  return `${(project || 'Project').replace(/\s+/g, '-')}_${type}_${String(num).padStart(2, '0')}.jpg`;
-}
+// ─── Tool 1: Remove Text & Logos ──────────────────────────────────────────────
+async function runClean() {
+  const apiKey  = document.getElementById('apiKey').value.trim();
+  const project = document.getElementById('project').value.trim() || 'Project';
+  const model   = document.getElementById('model').value;
+  const files   = toolFiles.clean;
 
-// ─── Auto-Classify ───────────────────────────────────────────────────────────
-async function classifyAll() {
-  const apiKey = document.getElementById('apiKey').value.trim();
-  if (!apiKey) { alert('Enter your OpenRouter API key first.'); return; }
-  if (!uploadedFiles.length) return;
-
-  const btn = document.getElementById('classifyBtn');
-  btn.disabled = true;
-  btn.innerHTML = `<svg class="spinner" width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="20" stroke-dashoffset="5"/></svg> Classifying...`;
-  log('Auto-classifying photos...', 'info');
-
-  const model = 'google/gemini-3.1-flash-image-preview';
-
-  for (let i = 0; i < uploadedFiles.length; i++) {
-    const file = uploadedFiles[i];
-    log(`Classifying: ${file.name}`, 'info');
-    try {
-      const b64 = await compressImage(file, 768, 0.75);
-      const data = await callOpenRouter([b64], CLASSIFY_PROMPT, apiKey, model);
-      const msg = data?.choices?.[0]?.message;
-      const text = typeof msg?.content === 'string'
-        ? msg.content
-        : (Array.isArray(msg?.content) ? (msg.content.find(c => c.type === 'text')?.text || '') : '');
-      const m = text.match(/\{[\s\S]*?\}/);
-      if (m) {
-        const p = JSON.parse(m[0]);
-        classifications[i] = {
-          type:        ['hvac','plumbing','roofing','interior','general'].includes(p.type) ? p.type : 'general',
-          stage:       ['before','after','detail'].includes(p.stage) ? p.stage : 'detail',
-          description: (p.description || '').slice(0, 40),
-        };
-        log(`${file.name} → ${classifications[i].type} / ${classifications[i].stage} — "${classifications[i].description}"`, 'ok');
-      } else {
-        classifications[i] = { type: 'general', stage: 'detail', description: '' };
-        log(`${file.name}: could not parse JSON — set to general/detail`, 'warn');
-      }
-    } catch(e) {
-      classifications[i] = { type: 'general', stage: 'detail', description: '' };
-      log(`Classify error ${file.name}: ${e.message}`, 'err');
-    }
-    updateThumbBadge(i);
-  }
-
-  // Auto-switch preset to majority type
-  const types = Object.values(classifications).map(c => c.type);
-  const freq = {};
-  types.forEach(t => { freq[t] = (freq[t] || 0) + 1; });
-  const majority = Object.entries(freq).sort((a,b) => b[1]-a[1])[0]?.[0];
-  if (majority && majority !== 'general' && PRESET_CONFIG[majority]) {
-    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector(`.preset-btn[data-preset="${majority}"]`)?.classList.add('active');
-    currentPreset = majority;
-    updateHint();
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = '&#10003; Classified';
-  log(`Classification complete — ${Object.keys(classifications).length} photos tagged`, 'ok');
-}
-
-// ─── Main processing ──────────────────────────────────────────────────────────
-async function startProcessing() {
-  const apiKey = document.getElementById('apiKey').value.trim();
-  const project = document.getElementById('projectName').value.trim() || 'Project';
-  const model = document.getElementById('modelSelect').value;
-
-  if (!apiKey) { alert('Please enter your OpenRouter API key.'); return; }
-  if (!uploadedFiles.length) { alert('Please upload photos first.'); return; }
-  if (isProcessing) return;
+  if (!apiKey)       { alert('Enter OpenRouter API key.'); return; }
+  if (!files.length) { alert('Upload photos first.'); return; }
+  if (isProcessing)  return;
 
   isProcessing = true; results = [];
-  const btn = document.getElementById('processBtn');
-  btn.disabled = true;
-  btn.innerHTML = `<svg class="spinner" width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" stroke="#fff" stroke-width="2" fill="none" stroke-dasharray="20" stroke-dashoffset="5"/></svg> Processing...`;
-  document.getElementById('progressWrap').style.display = 'block';
-  document.getElementById('resultsSection').style.display = 'none';
+  const btn = document.getElementById('cleanRunBtn');
+  setBusy(btn, 'cleanProg', true);
   clearLog();
 
-  const prompt = getPrompt();
-  const files = [...uploadedFiles];
-
   try {
-    if (currentPreset === 'before_after') {
-      await processPairs(files, prompt, apiKey, model, project);
-
-    } else if (currentPreset === 'style_series') {
-      await processStyleSeries(files, prompt, apiKey, model, project);
-
-    } else {
-      await processIndividual(files, prompt, apiKey, model, project);
+    for (let i = 0; i < files.length; i++) {
+      setProgress('clean', i, files.length, `${i+1}/${files.length}: ${files[i].name}`);
+      log(`Cleaning: ${files[i].name}`, 'info');
+      try {
+        const b64 = await compress(files[i]);
+        let data = await callAPI([b64], P_CLEAN, apiKey, model);
+        if (isRefusal(data)) {
+          log('Safety filter — retrying with soft prompt', 'warn');
+          data = await callAPI([b64], P_CLEAN_SOFT, apiKey, model);
+        }
+        const img = extractImg(data);
+        if (img) {
+          results.push({ b64: img, name: buildName(project, 'clean', i+1) });
+          log(`Done: ${files[i].name}`, 'ok');
+        } else {
+          log(`No image returned: ${files[i].name}`, 'err');
+        }
+      } catch(e) { log(`Error ${files[i].name}: ${e.message}`, 'err'); }
     }
   } finally {
-    setProgress(files.length, files.length, `Done — ${results.length} of ${files.length} processed`);
+    setProgress('clean', files.length, files.length, `Done — ${results.length}/${files.length} cleaned`);
     renderResults();
     isProcessing = false;
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polygon points="3,2 12,7 3,12" fill="#fff"/></svg> Process Photos`;
+    setBusy(btn, 'cleanProg', false, 'Remove Text &amp; Logos');
   }
 }
 
-async function processPairs(files, prompt, apiKey, model, project) {
-  const pairs = Math.ceil(files.length / 2);
-  let done = 0;
-  for (let i = 0; i < files.length; i += 2) {
-    const pair = files.slice(i, i + 2);
-    const pairNum = Math.floor(i / 2) + 1;
-    setProgress(done, files.length, `Pair ${pairNum}/${pairs}: ${pair.map(f => f.name).join(' + ')}`);
-    log(`Pair ${pairNum}: ${pair.map(f => f.name).join(' + ')}`, 'info');
-    try {
-      const compressed = await Promise.all(pair.map(f => compressImage(f)));
-      let data = await callOpenRouter(compressed, prompt, apiKey, model);
-      if (isSafetyRefusal(data)) {
-        log('Safety filter — retrying with soft prompt', 'warn');
-        data = await callOpenRouter(compressed, SOFT_FALLBACK, apiKey, model);
-      }
-      const imgs = extractImages(data);
-      log(`Pair ${pairNum}: ${imgs.length} image(s) received`, imgs.length ? 'ok' : 'warn');
+// ─── Tool 2: Normalize Format ────────────────────────────────────────────────
+async function runNormalize() {
+  const apiKey  = document.getElementById('apiKey').value.trim();
+  const project = document.getElementById('project').value.trim() || 'Project';
+  const model   = document.getElementById('model').value;
+  const files   = toolFiles.normalize;
+  const tw      = parseInt(document.getElementById('normW').value) || 1920;
+  const th      = parseInt(document.getElementById('normH').value) || 1080;
+  const useAI   = document.getElementById('normAI').checked;
 
-      const clsBefore = classifications[i]   || {};
-      const clsAfter  = classifications[i+1] || {};
-      const pairType  = clsBefore.type || clsAfter.type || 'work';
-      if (imgs.length >= 2) {
-        results.push({ b64: imgs[0], name: buildFilename(project, `${pairType}_before`, pairNum) });
-        results.push({ b64: imgs[1], name: buildFilename(project, `${pairType}_after`,  pairNum) });
-      } else if (imgs.length === 1) {
-        log('Only 1 returned — processing second individually', 'warn');
-        results.push({ b64: imgs[0], name: buildFilename(project, `${pairType}_before`, pairNum) });
-        if (pair.length === 2) {
-          const d2 = await callOpenRouter([compressed[1]], PROMPTS.general, apiKey, model);
-          const i2 = extractImages(d2);
-          if (i2.length) results.push({ b64: i2[0], name: buildFilename(project, `${pairType}_after`, pairNum) });
-        }
-      } else {
-        log(`Pair ${pairNum}: no images returned`, 'err');
-      }
-    } catch(e) { log(`Pair ${pairNum} error: ${e.message}`, 'err'); }
-    done += pair.length;
-  }
-}
+  if (!files.length)        { alert('Upload photos first.'); return; }
+  if (useAI && !apiKey)     { alert('Enter OpenRouter API key for AI Enhance, or disable the toggle.'); return; }
+  if (isProcessing)         return;
 
-async function processStyleSeries(files, prompt, apiKey, model, project) {
-  if (files.length < 2) {
-    await processIndividual(files, PROMPTS.general, apiKey, model, project);
-    return;
-  }
-  // First: process reference image alone
-  setProgress(0, files.length, `Processing reference: ${files[0].name}`);
-  log(`Reference: ${files[0].name}`, 'info');
-  let refB64;
+  isProcessing = true; results = [];
+  const btn = document.getElementById('normRunBtn');
+  setBusy(btn, 'normProg', true);
+  clearLog();
+  log(`Target: ${tw}×${th} | AI enhance: ${useAI ? 'yes' : 'no'}`, 'info');
+
   try {
-    const refCompressed = await compressImage(files[0]);
-    const refData = await callOpenRouter([refCompressed], PROMPTS.general, apiKey, model);
-    const refImgs = extractImages(refData);
-    refB64 = refImgs.length ? refImgs[0] : refCompressed;
-    results.push({ b64: refB64, name: buildFilename(project, 'hero', 1) });
-    log(`Reference processed`, 'ok');
-  } catch(e) {
-    log(`Reference error: ${e.message}`, 'err');
-    refB64 = await compressImage(files[0]);
-  }
+    const steps = useAI ? 2 : 1;
+    for (let i = 0; i < files.length; i++) {
+      setProgress('norm', i * steps, files.length * steps, `${i+1}/${files.length}: ${files[i].name}`);
+      log(`Normalizing: ${files[i].name}`, 'info');
+      try {
+        let b64 = await compress(files[i]);
 
-  // Then match each subsequent image to reference
-  for (let i = 1; i < files.length; i++) {
-    setProgress(i, files.length, `Matching style ${i}/${files.length - 1}: ${files[i].name}`);
-    log(`Style match: ${files[i].name}`, 'info');
-    try {
-      const compressed = await compressImage(files[i]);
-      const data = await callOpenRouter([refB64, compressed], prompt, apiKey, model);
-      if (isSafetyRefusal(data)) {
-        log('Safety filter — retrying', 'warn');
-        const d2 = await callOpenRouter([refB64, compressed], SOFT_FALLBACK, apiKey, model);
-        const i2 = extractImages(d2);
-        if (i2.length) results.push({ b64: i2[i2.length - 1], name: buildFilename(project, 'detail', i) });
-        continue;
-      }
-      const imgs = extractImages(data);
-      if (imgs.length) {
-        results.push({ b64: imgs[imgs.length - 1], name: buildFilename(project, 'detail', i) });
-        log(`Matched: ${files[i].name}`, 'ok');
-      } else {
-        log(`No image returned: ${files[i].name}`, 'err');
-      }
-    } catch(e) { log(`Error: ${files[i].name} — ${e.message}`, 'err'); }
-  }
-}
+        if (useAI) {
+          setProgress('norm', i * steps, files.length * steps, `${i+1}/${files.length} — AI enhancing...`);
+          try {
+            const data = await callAPI([b64], P_ENHANCE, apiKey, model);
+            if (!isRefusal(data)) {
+              const img = extractImg(data);
+              if (img) { b64 = img; log(`AI enhanced: ${files[i].name}`, 'ok'); }
+              else       log(`AI returned no image, using original`, 'warn');
+            } else {
+              log(`Safety filter on enhance — skipping AI`, 'warn');
+            }
+          } catch(e) { log(`AI enhance error: ${e.message} — using original`, 'warn'); }
+        }
 
-async function processIndividual(files, prompt, apiKey, model, project) {
-  for (let i = 0; i < files.length; i++) {
-    setProgress(i, files.length, `${i + 1}/${files.length}: ${files[i].name}`);
-    log(`Processing: ${files[i].name}`, 'info');
-    try {
-      const b64 = await compressImage(files[i]);
-      let data = await callOpenRouter([b64], prompt, apiKey, model);
-      if (isSafetyRefusal(data)) {
-        log('Safety filter — retrying', 'warn');
-        data = await callOpenRouter([b64], SOFT_FALLBACK, apiKey, model);
-      }
-      const imgs = extractImages(data);
-      if (imgs.length) {
-        let out = imgs[0];
-        if (currentPreset === 'upscale') out = await resizeToHD(out);
-        const cls = classifications[i];
-        const type = cls
-          ? (currentPreset === 'upscale' ? `${cls.type}_upscaled` : `${cls.type}_${cls.stage}`)
-          : (currentPreset === 'upscale' ? 'upscaled' : currentPreset === 'general' ? 'hero' : currentPreset);
-        results.push({ b64: out, name: buildFilename(project, type, i + 1) });
-        log(`Done: ${files[i].name}`, 'ok');
-      } else {
-        log(`No image returned: ${files[i].name}`, 'err');
-      }
-    } catch(e) { log(`Error: ${files[i].name} — ${e.message}`, 'err'); }
+        setProgress('norm', i * steps + (useAI ? 1 : 0), files.length * steps, `${i+1}/${files.length} — Resizing to ${tw}×${th}...`);
+        const resized = await canvasResize(b64, tw, th);
+        results.push({ b64: resized, name: buildName(project, `${tw}x${th}`, i+1) });
+        log(`Done: ${files[i].name} → ${tw}×${th}`, 'ok');
+      } catch(e) { log(`Error ${files[i].name}: ${e.message}`, 'err'); }
+    }
+  } finally {
+    setProgress('norm', files.length * (useAI?2:1), files.length * (useAI?2:1), `Done — ${results.length}/${files.length} normalized`);
+    renderResults();
+    isProcessing = false;
+    setBusy(btn, 'normProg', false, 'Normalize All');
   }
 }
 
-// ─── UI helpers ───────────────────────────────────────────────────────────────
-function setProgress(done, total, label) {
-  document.getElementById('progressFill').style.width = (total ? Math.round(done / total * 100) : 0) + '%';
-  document.getElementById('progressLabel').textContent = label;
+// ─── Tool 3: Split Before / After ─────────────────────────────────────────────
+async function runSplit() {
+  const files = toolFiles.split;
+  const pct   = parseInt(document.getElementById('splitPct').value) || 50;
+
+  if (!files.length) { alert('Upload photos first.'); return; }
+  if (isProcessing)  return;
+
+  isProcessing = true; results = [];
+  const btn = document.getElementById('splitRunBtn');
+  setBusy(btn, 'splitProg', true);
+  clearLog();
+  log(`Splitting ${files.length} photo(s) at ${pct}%`, 'info');
+
+  try {
+    for (let i = 0; i < files.length; i++) {
+      setProgress('split', i, files.length, `${i+1}/${files.length}: ${files[i].name}`);
+      log(`Splitting: ${files[i].name}`, 'info');
+      try {
+        const { before, after } = await canvasSplit(files[i], pct);
+        const base = baseName(files[i]);
+        results.push({ b64: before, name: `${base}_before.jpg` });
+        results.push({ b64: after,  name: `${base}_after.jpg`  });
+        log(`Done: ${base}_before.jpg + ${base}_after.jpg`, 'ok');
+      } catch(e) { log(`Error ${files[i].name}: ${e.message}`, 'err'); }
+    }
+  } finally {
+    setProgress('split', files.length, files.length, `Done — ${files.length} photos → ${results.length} files`);
+    renderResults();
+    isProcessing = false;
+    setBusy(btn, 'splitProg', false, 'Split All Photos');
+  }
 }
 
+// ─── Split preview line on thumbnails ────────────────────────────────────────
+function previewSplitLine() {
+  const pct = document.getElementById('splitPct').value;
+  document.querySelectorAll('#splitThumbs .thumb-item').forEach(item => {
+    let line = item.querySelector('.split-line');
+    if (!line) {
+      line = document.createElement('div');
+      line.className = 'split-line';
+      line.style.cssText = 'position:absolute;top:0;bottom:22px;width:2px;background:#ffd43b;pointer-events:none;';
+      item.appendChild(line);
+    }
+    line.style.left = pct + '%';
+  });
+}
+
+// ─── UI helpers ──────────────────────────────────────────────────────────────
+const PROG_IDS = {
+  clean:     ['cleanFill',  'cleanLbl'],
+  norm:      ['normFill',   'normLbl'],
+  split:     ['splitFill',  'splitLbl'],
+};
+
+function setBusy(btn, progId, on, idleHtml) {
+  btn.disabled = on;
+  if (on) {
+    btn.innerHTML = `<svg class="spin" width="13" height="13" viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="5" stroke="#fff" stroke-width="2" fill="none" stroke-dasharray="20" stroke-dashoffset="5"/></svg> Processing...`;
+    document.getElementById(progId).style.display = 'block';
+  } else {
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polygon points="2,1 12,6.5 2,12" fill="#fff"/></svg> ${idleHtml}`;
+  }
+}
+
+function setProgress(key, done, total, label) {
+  const [fillId, lblId] = PROG_IDS[key];
+  document.getElementById(fillId).style.width = (total ? Math.round(done / total * 100) : 0) + '%';
+  document.getElementById(lblId).textContent = label;
+}
+
+// ─── Results ─────────────────────────────────────────────────────────────────
 function renderResults() {
   const grid = document.getElementById('resultGrid');
   grid.innerHTML = '';
@@ -960,16 +749,16 @@ function renderResults() {
     const card = document.createElement('div');
     card.className = 'result-card';
     card.innerHTML = `
-      <img src="data:image/jpeg;base64,${r.b64}" alt="${r.name}" onclick="openLightbox(${i})" title="Click to enlarge">
+      <img src="data:image/jpeg;base64,${r.b64}" onclick="openLb(${i})" title="Click to enlarge">
       <div class="result-info">
         <div class="result-name">${r.name}</div>
-        <button class="btn-dl" onclick="downloadOne(${i})">&#8595; Download</button>
+        <button class="btn-dl" onclick="dlOne(${i})">&#8595; Download</button>
       </div>`;
     grid.appendChild(card);
   });
 }
 
-function downloadOne(i) {
+function dlOne(i) {
   const a = document.createElement('a');
   a.href = 'data:image/jpeg;base64,' + results[i].b64;
   a.download = results[i].name;
@@ -978,24 +767,22 @@ function downloadOne(i) {
 
 async function downloadZip() {
   if (!results.length) return;
-  const btn = document.getElementById('downloadZipBtn');
+  const btn = document.getElementById('zipBtn');
   btn.disabled = true;
-  btn.innerHTML = `<svg class="spinner" width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="20" stroke-dashoffset="5"/></svg> Packing...`;
+  btn.innerHTML = `<svg class="spin" width="13" height="13" viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="20" stroke-dashoffset="5"/></svg> Packing...`;
 
   const zip = new JSZip();
   results.forEach(r => {
-    const binary = atob(r.b64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    zip.file(r.name, bytes);
+    const b = atob(r.b64), arr = new Uint8Array(b.length);
+    for (let j = 0; j < b.length; j++) arr[j] = b.charCodeAt(j);
+    zip.file(r.name, arr);
   });
 
-  const project = document.getElementById('projectName').value.trim() || 'photos';
-  const zipName = `${project.replace(/\s+/g,'-')}_processed.zip`;
+  const project = document.getElementById('project').value.trim() || 'photos';
   const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 3 } });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = zipName;
+  a.download = `${project.replace(/\s+/g, '-')}_processed.zip`;
   a.click();
   URL.revokeObjectURL(a.href);
 
@@ -1003,51 +790,35 @@ async function downloadZip() {
   btn.innerHTML = '&#8595; Download ZIP';
 }
 
-function openLightbox(i) {
-  document.getElementById('lightboxImg').src = 'data:image/jpeg;base64,' + results[i].b64;
-  document.getElementById('lightbox').classList.add('open');
+// ─── Lightbox ─────────────────────────────────────────────────────────────────
+function openLb(i) {
+  document.getElementById('lbImg').src = 'data:image/jpeg;base64,' + results[i].b64;
+  document.getElementById('lb').classList.add('open');
 }
-
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-  document.getElementById('lightboxImg').src = '';
+function closeLb() {
+  document.getElementById('lb').classList.remove('open');
+  document.getElementById('lbImg').src = '';
 }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
-
+// ─── Log ─────────────────────────────────────────────────────────────────────
 function log(msg, type = '') {
   const box = document.getElementById('logBox');
-  const line = document.createElement('div');
-  line.className = 'log-line ' + type;
-  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-  box.appendChild(line);
+  const ln = document.createElement('div');
+  ln.className = 'log-line ' + type;
+  ln.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  box.appendChild(ln);
   box.scrollTop = box.scrollHeight;
   if (!box.classList.contains('open') && (type === 'err' || type === 'warn')) {
     box.classList.add('open');
     document.getElementById('logArrow').style.transform = 'rotate(180deg)';
   }
 }
-
 function clearLog() { document.getElementById('logBox').innerHTML = ''; }
-
 function toggleLog() {
   const box = document.getElementById('logBox');
   box.classList.toggle('open');
   document.getElementById('logArrow').style.transform = box.classList.contains('open') ? 'rotate(180deg)' : '';
-}
-
-function toggleTips() {
-  const body = document.getElementById('tipsBody');
-  body.classList.toggle('open');
-  document.getElementById('tipsArrow').style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
-}
-
-function copyPrompt(el) {
-  navigator.clipboard.writeText(el.textContent).then(() => {
-    const orig = el.style.borderColor;
-    el.style.borderColor = 'var(--accent2)';
-    setTimeout(() => el.style.borderColor = orig, 1000);
-  });
 }
 </script>
 </body>
