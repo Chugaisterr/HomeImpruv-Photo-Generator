@@ -33,8 +33,9 @@ header span{color:var(--accent);}
 .field input:focus,.field select:focus{border-color:var(--accent);}
 
 /* ── Tool cards ── */
-.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
-@media(max-width:800px){.tools{grid-template-columns:repeat(2,1fr);}}
+.tools{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:1000px){.tools{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:640px){.tools{grid-template-columns:1fr;}}
 .tool-card{
   background:var(--surface);border:2px solid var(--border);border-radius:var(--r);
   padding:18px 16px;cursor:pointer;transition:all .15s;
@@ -66,6 +67,16 @@ header span{color:var(--accent);}
 .tog-s:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
 .toggle input:checked + .tog-s{background:var(--accent);}
 .toggle input:checked + .tog-s:before{transform:translateX(16px);}
+
+/* ── Dual upload (Generate Interior) ── */
+.dual-upload{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.dual-zone{border:2px dashed var(--border);border-radius:var(--r);padding:20px 16px;text-align:center;cursor:pointer;transition:all .15s;}
+.dual-zone:hover,.dual-zone.drag{border-color:var(--accent);background:rgba(79,142,247,.05);}
+.dual-zone .dz-icon{font-size:20px;margin-bottom:6px;}
+.dual-zone .dz-title{font-size:13px;font-weight:600;margin-bottom:3px;color:var(--text);}
+.dual-zone small{font-size:11px;color:var(--text2);}
+.dual-zone .dz-count{display:inline-block;margin-top:6px;font-size:11px;color:var(--accent2);font-weight:600;}
+@media(max-width:600px){.dual-upload{grid-template-columns:1fr;}}
 
 /* ── Split slider ── */
 .split-row{
@@ -201,6 +212,11 @@ header span{color:var(--accent);}
       <div class="tc-icon">⊞</div>
       <div class="tc-title">Join Before/After</div>
       <div class="tc-desc">Two separate photos (before + after) → one combined side-by-side image: <strong>joined.jpg</strong>.</div>
+    </div>
+    <div class="tool-card" data-tool="gen" onclick="selectTool('gen')">
+      <div class="tc-icon">🏠</div>
+      <div class="tc-title">Generate Interior</div>
+      <div class="tc-desc">Upload reference style photos + your room → AI generates the room redesigned in the reference style.</div>
     </div>
   </div>
 
@@ -359,6 +375,45 @@ header span{color:var(--accent);}
     </div>
   </div>
 
+  <!-- ══ Panel: Generate Interior ══ -->
+  <div id="panel-gen" class="panel">
+    <div class="panel-info">
+      Upload <strong>2–5 reference photos</strong> showing the interior style you want, then <strong>1–3 photos of your room</strong>.
+      AI will redesign your room in the style of the references — same architecture, new interior.
+    </div>
+    <div class="dual-upload">
+      <div class="dual-zone" id="genRefZone">
+        <div class="dz-icon">🎨</div>
+        <div class="dz-title">Reference Style</div>
+        <small>2–5 photos of the style you want</small>
+        <div class="dz-count" id="genRefCount" style="display:none"></div>
+        <input type="file" id="genRefInput" multiple accept="image/*" style="display:none">
+      </div>
+      <div class="dual-zone" id="genRoomZone">
+        <div class="dz-icon">🏠</div>
+        <div class="dz-title">Your Room</div>
+        <small>1–3 photos of the room to redesign</small>
+        <div class="dz-count" id="genRoomCount" style="display:none"></div>
+        <input type="file" id="genRoomInput" multiple accept="image/*" style="display:none">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="thumb-grid" id="genRefThumbs" style="margin:0"></div>
+      <div class="thumb-grid" id="genRoomThumbs" style="margin:0"></div>
+    </div>
+    <div class="actions" id="genActions" style="display:none">
+      <button class="btn btn-primary" id="genRunBtn" onclick="runGenInterior()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polygon points="2,1 12,6.5 2,12" fill="#fff"/></svg>
+        Generate Interior
+      </button>
+      <button class="btn btn-secondary" onclick="clearGen()">Clear</button>
+      <div class="prog" id="genProg" style="display:none">
+        <div class="prog-bg"><div class="prog-fill" id="genFill" style="width:0%"></div></div>
+        <div class="prog-lbl" id="genLbl"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Results -->
   <div id="resultsSection" style="display:none">
     <div class="results-hdr">
@@ -390,6 +445,7 @@ header span{color:var(--accent);}
 <script>
 // ─── State ────────────────────────────────────────────────────────────────────
 const toolFiles = { clean: [], normalize: [], split: [], join: [] };
+const genFiles  = { refs: [], room: [] };
 let results      = [];
 let isProcessing = false;
 
@@ -771,6 +827,139 @@ async function runNormalize() {
   }
 }
 
+// ─── Generate Interior upload setup ──────────────────────────────────────────
+(function setupGenUploads() {
+  function setupDualZone(zoneId, inputId, key, maxFiles, countId) {
+    const zone  = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
+    zone.addEventListener('click',     () => input.click());
+    zone.addEventListener('dragover',  e  => { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', ()  => zone.classList.remove('drag'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag');
+      addGenFiles(key, maxFiles, countId, Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
+    });
+    input.addEventListener('change', e => {
+      addGenFiles(key, maxFiles, countId, Array.from(e.target.files));
+      input.value = '';
+    });
+  }
+  setupDualZone('genRefZone',  'genRefInput',  'refs', 5, 'genRefCount');
+  setupDualZone('genRoomZone', 'genRoomInput', 'room', 3, 'genRoomCount');
+})();
+
+function addGenFiles(key, maxFiles, countId, files) {
+  const arr = genFiles[key];
+  files.slice(0, maxFiles - arr.length).forEach(f => {
+    if (!arr.find(u => u.name === f.name && u.size === f.size)) arr.push(f);
+  });
+  renderGenThumbs(key, countId);
+  const hasEnough = genFiles.refs.length >= 1 && genFiles.room.length >= 1;
+  document.getElementById('genActions').style.display = hasEnough ? 'flex' : 'none';
+}
+
+async function renderGenThumbs(key, countId) {
+  const gridId = key === 'refs' ? 'genRefThumbs' : 'genRoomThumbs';
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = '';
+  const files = genFiles[key];
+  for (let i = 0; i < files.length; i++) {
+    const url = await readDataURL(files[i]);
+    const d = document.createElement('div');
+    d.className = 'thumb-item';
+    d.innerHTML = `<img src="${url}" alt=""><button class="thumb-rm" onclick="removeGenFile('${key}','${countId}',${i})">&#215;</button><div class="thumb-name">${files[i].name}</div>`;
+    grid.appendChild(d);
+  }
+  const countEl = document.getElementById(countId);
+  if (files.length) {
+    countEl.style.display = '';
+    countEl.textContent = `${files.length} photo${files.length > 1 ? 's' : ''} loaded`;
+  } else {
+    countEl.style.display = 'none';
+  }
+}
+
+function removeGenFile(key, countId, i) {
+  genFiles[key].splice(i, 1);
+  renderGenThumbs(key, countId);
+  const hasEnough = genFiles.refs.length >= 1 && genFiles.room.length >= 1;
+  document.getElementById('genActions').style.display = hasEnough ? 'flex' : 'none';
+}
+
+function clearGen() {
+  genFiles.refs = []; genFiles.room = [];
+  renderGenThumbs('refs', 'genRefCount');
+  renderGenThumbs('room', 'genRoomCount');
+  document.getElementById('genActions').style.display = 'none';
+  results = [];
+  document.getElementById('resultsSection').style.display = 'none';
+  document.getElementById('resultGrid').innerHTML = '';
+  clearLog();
+}
+
+// ─── Tool 5: Generate Interior ────────────────────────────────────────────────
+async function runGenInterior() {
+  const apiKey  = document.getElementById('apiKey').value.trim();
+  const project = document.getElementById('project').value.trim() || 'Project';
+  const model   = document.getElementById('model').value;
+
+  if (!apiKey)                  { alert('Enter OpenRouter API key.'); return; }
+  if (!genFiles.refs.length)    { alert('Upload at least 1 reference style photo.'); return; }
+  if (!genFiles.room.length)    { alert('Upload at least 1 room photo.'); return; }
+  if (isProcessing)             return;
+
+  isProcessing = true; results = [];
+  const btn = document.getElementById('genRunBtn');
+  setBusy(btn, 'genProg', true);
+  clearLog();
+
+  const prompt = `I am providing ${genFiles.refs.length} REFERENCE STYLE photo${genFiles.refs.length > 1 ? 's' : ''} followed by ${genFiles.room.length} ROOM photo${genFiles.room.length > 1 ? 's' : ''}.
+
+REFERENCE STYLE photos (first ${genFiles.refs.length} images): These define the target interior design aesthetic — furniture style, color palette, materials, textures, lighting mood, and decor.
+
+ROOM photos (last ${genFiles.room.length} images): These show the actual room/space to be redesigned.
+
+Task: Generate a photorealistic image of the room redesigned in the style of the references.
+- Preserve the room's architectural structure: walls, windows, doors, ceiling, floor plan
+- Replace the interior with furniture, colors, materials, and decor matching the reference style
+- Maintain natural lighting appropriate for the space
+- Result must look like a professional interior design photo or high-quality render
+- Do not add text, watermarks, or graphic overlays`;
+
+  try {
+    for (let i = 0; i < genFiles.room.length; i++) {
+      setProgress('gen', i, genFiles.room.length, `Generating ${i+1}/${genFiles.room.length}...`);
+      log(`Generating interior for: ${genFiles.room[i].name}`, 'info');
+      try {
+        // Compress refs + current room photo
+        const refB64s  = await Promise.all(genFiles.refs.map(f => compress(f, 1024, 0.85)));
+        const roomB64  = await compress(genFiles.room[i], 1280, 0.88);
+        const allImgs  = [...refB64s, roomB64];
+
+        let data = await callAPI(allImgs, prompt, apiKey, model);
+        if (isRefusal(data)) {
+          log('Safety filter — retrying with simplified prompt', 'warn');
+          const softPrompt = `Redesign the last room photo in the interior style shown in the first ${genFiles.refs.length} reference photo${genFiles.refs.length > 1 ? 's' : ''}. Keep the same room structure, apply the style from the references. Return a photorealistic interior design image.`;
+          data = await callAPI(allImgs, softPrompt, apiKey, model);
+        }
+
+        const img = extractImg(data);
+        if (img) {
+          results.push({ b64: img, name: buildName(project, 'interior', i + 1) });
+          log(`Done: ${buildName(project, 'interior', i + 1)}`, 'ok');
+        } else {
+          log(`No image returned for: ${genFiles.room[i].name}`, 'err');
+        }
+      } catch(e) { log(`Error: ${e.message}`, 'err'); }
+    }
+  } finally {
+    setProgress('gen', genFiles.room.length, genFiles.room.length, `Done — ${results.length} generated`);
+    renderResults();
+    isProcessing = false;
+    setBusy(btn, 'genProg', false, 'Generate Interior');
+  }
+}
+
 // ─── Tool 3: Split ────────────────────────────────────────────────────────────
 async function runSplit() {
   const files = toolFiles.split;
@@ -864,6 +1053,7 @@ const PROG_IDS = {
   norm:      ['normFill',   'normLbl'],
   split:     ['splitFill',  'splitLbl'],
   join:      ['joinFill',   'joinLbl'],
+  gen:       ['genFill',    'genLbl'],
 };
 
 function setBusy(btn, progId, on, idleHtml) {
