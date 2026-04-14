@@ -22,7 +22,12 @@ fonts/secondary/*.ttf
 
 # Media library — binary images, not tracked in git
 Media/
+Media_norm/
+Media_enhanced/
+Media_backup*/
 public/
+reviews.json
+test_enhanced.jpg
 *.mp4
 *.mov
 *.avi

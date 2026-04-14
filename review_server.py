@@ -181,14 +181,18 @@ HTML = r"""<!DOCTYPE html>
   .photo-area.single img { max-width: 100%; max-height: 100%; object-fit: contain;
     border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); cursor: zoom-in; }
 
-  /* Set photos */
-  .photo-area.set { flex-wrap: wrap; justify-content: center; }
-  .photo-area.set .photo-wrap { flex: 1 1 calc(50% - 8px); max-width: calc(50% - 8px);
-    max-height: 50%; display: flex; align-items: center; justify-content: center;
-    position: relative; }
-  .photo-area.set .photo-wrap img { max-width: 100%; max-height: 100%; object-fit: contain;
-    border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: zoom-in;
-    transition: transform 0.15s; }
+  /* Set photos — CSS Grid layout */
+  .photo-area.set { display: grid; gap: 6px; padding: 8px; align-items: stretch; }
+  .photo-area.set.count-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+  .photo-area.set.count-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+  .photo-area.set.count-3 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr; }
+  .photo-area.set.count-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+  .photo-area.set .photo-wrap { display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; min-height: 0; min-width: 0;
+    background: rgba(255,255,255,0.03); border-radius: 6px; }
+  .photo-area.set .photo-wrap img { max-width: 100%; max-height: 100%; width: 100%; height: 100%;
+    object-fit: contain; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    cursor: zoom-in; transition: transform 0.15s; }
   .photo-area.set .photo-wrap img:hover { transform: scale(1.02); }
   .photo-wrap .photo-label { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
     background: rgba(0,0,0,0.75); color: #fff; font-size: 10px; padding: 2px 6px;
@@ -282,6 +286,7 @@ HTML = r"""<!DOCTYPE html>
     <button class="filter-btn active" onclick="setFilter('all')">All</button>
     <button class="filter-btn" onclick="setFilter('pending')">Pending</button>
     <button class="filter-btn" onclick="setFilter('rejected')">Rejected</button>
+    <button class="filter-btn" onclick="jumpToNextSet()" style="border-color:#a855f7;color:#a855f7;">⚡ Next SET</button>
   </div>
 </div>
 
@@ -365,6 +370,8 @@ async function init() {
   ]);
   units = await dataRes.json();
   reviews = await reviewRes.json();
+  // Shuffle: sets first (stay interleaved), then random order
+  units = units.sort(() => Math.random() - 0.5);
   applyFilter();
   renderStats();
 }
@@ -436,7 +443,8 @@ function renderCard() {
 
   // Photo area
   const photoArea = document.createElement('div');
-  photoArea.className = `photo-area ${unit.type === 'set' ? 'set' : 'single'}`;
+  const countClass = unit.type === 'set' ? ` count-${unit.photos.length}` : '';
+  photoArea.className = `photo-area ${unit.type === 'set' ? 'set' : 'single'}${countClass}`;
 
   unit.photos.forEach(photo => {
     const wrap = document.createElement('div');
@@ -633,6 +641,28 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeLightbox();
 });
 
+// ── Jump to next set ───────────────────────────────────────────────────────
+
+function jumpToNextSet() {
+  const start = currentIdx + 1;
+  for (let i = start; i < filteredUnits.length; i++) {
+    if (filteredUnits[i].type === 'set') {
+      currentIdx = i;
+      renderCard();
+      return;
+    }
+  }
+  // wrap around
+  for (let i = 0; i < start; i++) {
+    if (filteredUnits[i].type === 'set') {
+      currentIdx = i;
+      renderCard();
+      return;
+    }
+  }
+  alert('No sets found in current filter.');
+}
+
 // ── Export ─────────────────────────────────────────────────────────────────
 
 function exportReviews() {
@@ -687,7 +717,7 @@ class Handler(BaseHTTPRequestHandler):
 
         elif path.startswith("/media/"):
             rel = unquote(path[7:])
-            file_path = Path(rel)
+            file_path = MEDIA_DIR / rel
             if file_path.exists() and file_path.is_file():
                 mime = mimetypes.guess_type(str(file_path))[0] or "application/octet-stream"
                 data = file_path.read_bytes()

@@ -80,5 +80,37 @@ class OpenRouterClient:
         response.raise_for_status()
         return response.json()["choices"][0]["message"]["content"]
 
+    def enhance_vision(
+        self,
+        prompt: str,
+        image_b64: str,
+        model: str = "google/gemini-2.0-flash-preview-image-generation",
+        max_tokens: int = 4096,
+    ) -> dict:
+        """
+        Send image to Gemini image generation model for enhancement.
+        Returns raw response JSON (caller handles image extraction).
+        """
+        payload = {
+            "model": model,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"},
+                        },
+                        {"type": "text", "text": prompt},
+                    ],
+                }
+            ],
+            "modalities": ["image", "text"],
+            "max_tokens": max_tokens,
+        }
+        response = self.client.post(f"{self.base_url}/chat/completions", json=payload)
+        response.raise_for_status()
+        return response.json()
+
     def close(self):
         self.client.close()

@@ -8,7 +8,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from processor.pipeline import run_pipeline, run_batch
+try:
+    from processor.pipeline import run_pipeline, run_batch
+except ImportError:
+    run_pipeline = run_batch = None
 from processor.ai_generate import generate_image
 from utils.naming import build_filename
 
@@ -106,6 +109,28 @@ def cmd_organize(args):
     print(f"\nDone: {summary['success']} moved, {summary['failed']} failed, "
           f"{summary['skipped']} skipped")
     print(f"Rename log: {log_path}")
+
+
+def cmd_enhance(args):
+    """AI-enhance all photos via Gemini, then normalize to 1920×1080."""
+    from processor.enhancer import enhance_batch, print_summary
+
+    source = Path(args.source)
+    output = Path(args.output)
+
+    results = enhance_batch(
+        source_dir=source,
+        output_dir=output,
+        model=args.model,
+        normalize=not args.no_normalize,
+        norm_width=args.width,
+        norm_height=args.height,
+        norm_quality=args.quality,
+        workers=args.workers,
+        resume=not args.no_resume,
+    )
+    print_summary(results)
+    print(f"\nEnhanced photos saved to: {output}")
 
 
 def cmd_normalize(args):
@@ -207,6 +232,49 @@ def main():
         help="Skip files with quality score below this (default: 1)",
     )
     p_org.set_defaults(func=cmd_organize)
+
+    # ── enhance: AI quality enhancement via Gemini
+    p_enh = sub.add_parser(
+        "enhance",
+        help="AI-enhance photos via Gemini (remove watermarks, color grade, sharpen) then normalize to 1920x1080",
+    )
+    p_enh.add_argument(
+        "source",
+        help="Source folder (e.g. Media or Media/hvac/hero)",
+    )
+    p_enh.add_argument(
+        "--output", "-o", default="Media_enhanced",
+        help="Output folder (default: Media_enhanced)",
+    )
+    p_enh.add_argument(
+        "--model", default="google/gemini-3.1-flash-image-preview",
+        help="Gemini model via OpenRouter (default: gemini-3.1-flash-image-preview)",
+    )
+    p_enh.add_argument(
+        "--workers", type=int, default=2,
+        help="Parallel workers — keep low for rate limits (default: 2)",
+    )
+    p_enh.add_argument(
+        "--no-normalize", action="store_true",
+        help="Skip 1920x1080 normalization after enhancement",
+    )
+    p_enh.add_argument(
+        "--width", type=int, default=1920,
+        help="Normalize width (default: 1920)",
+    )
+    p_enh.add_argument(
+        "--height", type=int, default=1080,
+        help="Normalize height (default: 1080)",
+    )
+    p_enh.add_argument(
+        "--quality", type=int, default=92,
+        help="JPEG quality (default: 92)",
+    )
+    p_enh.add_argument(
+        "--no-resume", action="store_true",
+        help="Re-enhance all files, ignoring existing results",
+    )
+    p_enh.set_defaults(func=cmd_enhance)
 
     # ── normalize: gold standard 1920x1080 normalization
     p_norm = sub.add_parser(
