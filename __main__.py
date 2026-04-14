@@ -108,6 +108,29 @@ def cmd_organize(args):
     print(f"Rename log: {log_path}")
 
 
+def cmd_normalize(args):
+    """Normalize all images to gold standard 1920×1080 with smart fill."""
+    from processor.normalizer import normalize_batch
+
+    source = Path(args.source)
+    output = Path(args.output) if args.output else None
+
+    results = normalize_batch(
+        source_dir=source,
+        output_dir=output,
+        width=args.width,
+        height=args.height,
+        quality=args.quality,
+        in_place=args.in_place,
+        output_suffix=args.suffix,
+        workers=args.workers,
+    )
+    ok = sum(1 for r in results if r["status"] == "ok")
+    print(f"\nNormalized: {ok}/{len(results)} images to {args.width}x{args.height}")
+    if output:
+        print(f"Output dir: {output}")
+
+
 def main():
     parser = argparse.ArgumentParser(prog="processor")
     sub = parser.add_subparsers()
@@ -184,6 +207,45 @@ def main():
         help="Skip files with quality score below this (default: 1)",
     )
     p_org.set_defaults(func=cmd_organize)
+
+    # ── normalize: gold standard 1920x1080 normalization
+    p_norm = sub.add_parser(
+        "normalize",
+        help="Normalize images to gold standard 1920x1080 with smart fill",
+    )
+    p_norm.add_argument(
+        "source",
+        help="Source folder (e.g. Media/flooring/hero or Media)",
+    )
+    p_norm.add_argument(
+        "--output", "-o", default=None,
+        help="Output folder. If omitted, saves next to original with suffix.",
+    )
+    p_norm.add_argument(
+        "--width", type=int, default=1920,
+        help="Target width in px (default: 1920)",
+    )
+    p_norm.add_argument(
+        "--height", type=int, default=1080,
+        help="Target height in px (default: 1080)",
+    )
+    p_norm.add_argument(
+        "--quality", type=int, default=92,
+        help="JPEG quality 1-100 (default: 92)",
+    )
+    p_norm.add_argument(
+        "--in-place", action="store_true",
+        help="Overwrite originals (converts webp/png to jpg in-place)",
+    )
+    p_norm.add_argument(
+        "--suffix", default="_norm",
+        help="Filename suffix when not using --output or --in-place (default: _norm)",
+    )
+    p_norm.add_argument(
+        "--workers", type=int, default=4,
+        help="Parallel workers (default: 4)",
+    )
+    p_norm.set_defaults(func=cmd_normalize)
 
     args = parser.parse_args()
     if hasattr(args, "func"):
