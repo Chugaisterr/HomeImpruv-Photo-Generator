@@ -251,7 +251,8 @@ header span{color:var(--accent);}
   <!-- ══ Panel: Normalize ══ -->
   <div id="panel-normalize" class="panel">
     <div class="panel-info">
-      Resize all photos to the <strong>same resolution and format</strong>. Image is fitted inside the target with white padding — no cropping.
+      Resize all photos to the <strong>same resolution and format</strong>.
+      <strong>Crop to Fill</strong> — заповнює кадр повністю без полів (обрізає краї). <strong>Fit</strong> — вміщує повністю з білими полями.
       Turn on <strong>AI Enhance</strong> to improve quality, color, and sharpness before resizing.
     </div>
     <div class="tool-opts">
@@ -273,6 +274,13 @@ header span{color:var(--accent);}
           <option value="1280x720">1280 × 720 &nbsp;HD</option>
           <option value="1080x1080">1080 × 1080 &nbsp;Square</option>
           <option value="800x600">800 × 600 &nbsp;Web small</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Режим</label>
+        <select id="normMode" style="width:160px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-size:12px;">
+          <option value="cover">Crop to Fill (без полів)</option>
+          <option value="contain">Fit (з білими полями)</option>
         </select>
       </div>
       <div class="toggle-row">
@@ -601,16 +609,25 @@ function compress(file, maxPx = 1536, q = 0.88) {
   });
 }
 
-function canvasResize(b64, tw, th) {
+function canvasResize(b64, tw, th, mode = 'cover') {
   return new Promise(res => {
     const img = new Image();
     img.onload = () => {
       const c = document.createElement('canvas'); c.width = tw; c.height = th;
       const ctx = c.getContext('2d');
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, tw, th);
-      const s = Math.min(tw / img.width, th / img.height);
-      const w = Math.round(img.width * s), h = Math.round(img.height * s);
-      ctx.drawImage(img, Math.round((tw - w) / 2), Math.round((th - h) / 2), w, h);
+      if (mode === 'contain') {
+        // fit inside with white padding
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, tw, th);
+        const s = Math.min(tw / img.width, th / img.height);
+        const w = Math.round(img.width * s), h = Math.round(img.height * s);
+        ctx.drawImage(img, Math.round((tw - w) / 2), Math.round((th - h) / 2), w, h);
+      } else {
+        // cover — crop to fill, no white borders
+        const s = Math.max(tw / img.width, th / img.height);
+        const w = Math.round(img.width * s), h = Math.round(img.height * s);
+        const sx = Math.round((w - tw) / 2), sy = Math.round((h - th) / 2);
+        ctx.drawImage(img, -sx, -sy, w, h);
+      }
       res(c.toDataURL('image/jpeg', 0.92).split(',')[1]);
     };
     img.src = 'data:image/jpeg;base64,' + b64;
@@ -802,6 +819,7 @@ async function runNormalize() {
   const tw      = parseInt(document.getElementById('normW').value) || 1920;
   const th      = parseInt(document.getElementById('normH').value) || 1080;
   const useAI   = document.getElementById('normAI').checked;
+  const resMode = document.getElementById('normMode').value;
 
   if (!files.length)        { alert('Upload photos first.'); return; }
   if (useAI && !apiKey)     { alert('Enter OpenRouter API key for AI Enhance, or disable the toggle.'); return; }
@@ -836,7 +854,7 @@ async function runNormalize() {
         }
 
         setProgress('norm', i * steps + (useAI ? 1 : 0), files.length * steps, `${i+1}/${files.length} — Resizing to ${tw}×${th}...`);
-        const resized = await canvasResize(b64, tw, th);
+        const resized = await canvasResize(b64, tw, th, resMode);
         results.push({ b64: resized, name: buildName(project, `${tw}x${th}`, i+1) });
         log(`Done: ${files[i].name} → ${tw}×${th}`, 'ok');
       } catch(e) { log(`Error ${files[i].name}: ${e.message}`, 'err'); }
