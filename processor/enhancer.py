@@ -33,7 +33,12 @@ logger = logging.getLogger(__name__)
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".bmp", ".tiff"}
 
 # Default model — fastest, fewer safety refusals
-DEFAULT_MODEL = "google/gemini-3.1-flash-image-preview"
+# Recommended models (cheapest → best quality):
+# sourceful/riverflow-v2-fast        — $0.02/1K, $0.04/2K  ← best value
+# google/gemini-2.5-flash-image      — ~$0.004/photo
+# google/gemini-3.1-flash-image-preview — ~$0.005/photo
+# google/gemini-3-pro-image-preview  — ~$0.019/photo (best Gemini quality)
+DEFAULT_MODEL = "sourceful/riverflow-v2-fast"
 
 # Max input size before sending to API (px on longest side)
 MAX_INPUT_PX = 1536

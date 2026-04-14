@@ -84,14 +84,18 @@ class OpenRouterClient:
         self,
         prompt: str,
         image_b64: str,
-        model: str = "google/gemini-2.0-flash-preview-image-generation",
+        model: str = "google/gemini-3.1-flash-image-preview",
         max_tokens: int = 4096,
     ) -> dict:
         """
-        Send image to Gemini image generation model for enhancement.
+        Send image to an image generation/editing model for enhancement.
+        Automatically selects payload format based on model provider:
+          - google/gemini-*  → modalities: ["image", "text"]
+          - sourceful/*      → no modalities field (native routing)
+          - others           → no modalities field
         Returns raw response JSON (caller handles image extraction).
         """
-        payload = {
+        payload: dict = {
             "model": model,
             "messages": [
                 {
@@ -105,9 +109,12 @@ class OpenRouterClient:
                     ],
                 }
             ],
-            "modalities": ["image", "text"],
             "max_tokens": max_tokens,
         }
+        # Gemini image models require explicit modalities declaration
+        if model.startswith("google/"):
+            payload["modalities"] = ["image", "text"]
+
         response = self.client.post(f"{self.base_url}/chat/completions", json=payload)
         response.raise_for_status()
         return response.json()

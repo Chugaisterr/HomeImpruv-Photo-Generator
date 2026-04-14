@@ -247,8 +247,10 @@ def main():
         help="Output folder (default: Media_enhanced)",
     )
     p_enh.add_argument(
-        "--model", default="google/gemini-3.1-flash-image-preview",
-        help="Gemini model via OpenRouter (default: gemini-3.1-flash-image-preview)",
+        "--model", default="sourceful/riverflow-v2-fast",
+        help="Model via OpenRouter (default: sourceful/riverflow-v2-fast). "
+             "Options: sourceful/riverflow-v2-fast, google/gemini-2.5-flash-image, "
+             "google/gemini-3.1-flash-image-preview, google/gemini-3-pro-image-preview",
     )
     p_enh.add_argument(
         "--workers", type=int, default=2,
