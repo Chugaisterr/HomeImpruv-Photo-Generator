@@ -19,3 +19,13 @@ generated/**/*.png
 generated/**/*.webp
 fonts/primary/*.ttf
 fonts/secondary/*.ttf
+
+# Media library — binary images, not tracked in git
+Media/
+public/
+*.mp4
+*.mov
+*.avi
+
+# Claude internal
+.claude/

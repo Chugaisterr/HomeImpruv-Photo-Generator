@@ -52,5 +52,33 @@ class OpenRouterClient:
         img_response.raise_for_status()
         return img_response.content
 
+    def chat_vision(
+        self,
+        prompt: str,
+        image_b64: str,
+        model: str = "openai/gpt-4o-mini",
+        max_tokens: int = 512,
+    ) -> str:
+        """Send image + prompt to a vision model, return text response."""
+        payload = {
+            "model": model,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"},
+                        },
+                        {"type": "text", "text": prompt},
+                    ],
+                }
+            ],
+            "max_tokens": max_tokens,
+        }
+        response = self.client.post(f"{self.base_url}/chat/completions", json=payload)
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+
     def close(self):
         self.client.close()
