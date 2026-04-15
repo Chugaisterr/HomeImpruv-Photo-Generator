@@ -51,7 +51,7 @@
     "needs_upscale": true
   },
   {
-    "niche": "unknown",
+    "niche": "bathroom",
     "use": "project",
     "subtype": "process",
     "has_text_overlay": false,
@@ -306,7 +306,7 @@
     "needs_upscale": true
   },
   {
-    "niche": "unknown",
+    "niche": "bathroom",
     "use": "ba",
     "subtype": "together",
     "has_text_overlay": false,
@@ -408,7 +408,7 @@
     "needs_upscale": false
   },
   {
-    "niche": "unknown",
+    "niche": "bathroom",
     "use": "ba",
     "subtype": "together",
     "has_text_overlay": false,
@@ -1275,7 +1275,7 @@
     "needs_upscale": true
   },
   {
-    "niche": "unknown",
+    "niche": "bathroom",
     "use": "hero",
     "subtype": "result",
     "has_text_overlay": false,
@@ -1445,7 +1445,7 @@
     "needs_upscale": true
   },
   {
-    "niche": "unknown",
+    "niche": "bathroom",
     "use": "project",
     "subtype": "process",
     "has_text_overlay": false,
@@ -1972,7 +1972,7 @@
     "needs_upscale": true
   },
   {
-    "niche": "unknown",
+    "niche": "flooring",
     "use": "ba",
     "subtype": "together",
     "has_text_overlay": false,
@@ -2091,7 +2091,7 @@
     "needs_upscale": false
   },
   {
-    "niche": "unknown",
+    "niche": "flooring",
     "use": "ba",
     "subtype": "together",
     "has_text_overlay": false,
@@ -2329,7 +2329,7 @@
     "needs_upscale": false
   },
   {
-    "niche": "unknown",
+    "niche": "flooring",
     "use": "hero",
     "subtype": "worker",
     "has_text_overlay": false,
@@ -3112,8 +3112,8 @@
   },
   {
     "niche": "hvac",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "after",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 5,
@@ -3129,8 +3129,8 @@
   },
   {
     "niche": "hvac",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 7,
@@ -3146,8 +3146,8 @@
   },
   {
     "niche": "hvac",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 7,
@@ -4199,9 +4199,9 @@
     "needs_upscale": false
   },
   {
-    "niche": "unknown",
-    "use": "unknown",
-    "subtype": "unknown",
+    "niche": "security",
+    "use": "hero",
+    "subtype": "team",
     "has_text_overlay": false,
     "has_person": true,
     "quality_score": 7,
@@ -4250,7 +4250,7 @@
     "needs_upscale": true
   },
   {
-    "niche": "unknown",
+    "niche": "security",
     "use": "project",
     "subtype": "process",
     "has_text_overlay": false,
@@ -4267,7 +4267,7 @@
     "needs_upscale": true
   },
   {
-    "niche": "unknown",
+    "niche": "security",
     "use": "hero",
     "subtype": "worker",
     "has_text_overlay": false,
@@ -4506,8 +4506,8 @@
   },
   {
     "niche": "bathroom",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 7,
@@ -5662,8 +5662,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 8,
@@ -5713,8 +5713,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 7,
@@ -5730,8 +5730,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 7,
@@ -5747,8 +5747,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 7,
@@ -5832,8 +5832,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 7,
@@ -5866,8 +5866,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 7,
@@ -5883,8 +5883,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 8,
@@ -5900,8 +5900,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 7,
@@ -5917,8 +5917,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 8,
@@ -5985,8 +5985,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 8,
@@ -6019,8 +6019,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "before",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 8,
@@ -6087,8 +6087,8 @@
   },
   {
     "niche": "siding",
-    "use": "unknown",
-    "subtype": "unknown",
+    "use": "ba",
+    "subtype": "together",
     "has_text_overlay": false,
     "has_person": false,
     "quality_score": 8,

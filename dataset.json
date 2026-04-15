@@ -4,40 +4,38 @@
   "total": 386,
   "stats": {
     "niches": {
-      "bathroom": 151,
+      "bathroom": 156,
       "hvac": 62,
       "siding": 62,
-      "flooring": 41,
+      "flooring": 44,
       "shower": 32,
-      "security": 27,
-      "unknown": 11
+      "security": 30
     },
     "use_types": {
-      "ba": 146,
+      "ba": 162,
       "project": 114,
-      "hero": 105,
-      "unknown": 17,
+      "hero": 106,
       "result": 3,
       "after": 1
     },
     "subtypes": {
-      "together": 117,
+      "together": 118,
       "wide": 83,
       "result": 45,
       "worker": 39,
+      "before": 29,
       "process": 26,
       "product": 21,
-      "unknown": 18,
-      "before": 15,
-      "after": 12,
+      "after": 13,
       "detail": 7,
-      "team": 2,
-      "story": 1
+      "team": 3,
+      "story": 1,
+      "unknown": 1
     },
     "splits": {
-      "test": 38,
+      "val": 38,
       "train": 310,
-      "val": 38
+      "test": 38
     },
     "avg_quality": 7.87,
     "high_quality_count": 370,
@@ -106,7 +104,7 @@
         "contractor portfolio"
       ],
       "caption": "This modern bathroom features green tiled walls and a walk-in shower enclosed by glass. The wooden vanity adds warmth to the contemporary design.",
-      "split": "test"
+      "split": "val"
     },
     {
       "id": 2,
@@ -173,7 +171,7 @@
     {
       "id": 4,
       "path": "bathroom/ba/bathroom_ba_process_002.jpg",
-      "niche": "unknown",
+      "niche": "bathroom",
       "use": "project",
       "subtype": "process",
       "quality": 6,
@@ -185,7 +183,12 @@
       "has_text_overlay": false,
       "has_person": false,
       "tags": [
-        "home improvement",
+        "bathroom",
+        "renovation",
+        "tile",
+        "fixtures",
+        "remodeling",
+        "interior",
         "work in progress",
         "installation process",
         "installation in progress",
@@ -224,7 +227,7 @@
         "contractor portfolio"
       ],
       "caption": "The left side shows an outdated bathroom with a tub and basic fixtures, while the right side reveals a modern renovation featuring elegant marble walls, a sleek shower, and a stylish vanity.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 6,
@@ -658,7 +661,7 @@
         "contractor portfolio"
       ],
       "caption": "The photo showcases a bathroom transformation with a split view: on the left, a dated space featuring glass block walls and light-colored tiles, while the right displays a modern design with a stylish shower area, dark flooring, and a contemporary toilet.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 20,
@@ -689,12 +692,12 @@
         "contractor portfolio"
       ],
       "caption": "This photo showcases a renovated bathroom with a modern dual vanity featuring a wide sink area, contrasted with a more traditional look on the left side, highlighting the transformation from older design to a sleek, contemporary finish.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 21,
       "path": "bathroom/ba/bathroom_ba_together_017.jpg",
-      "niche": "unknown",
+      "niche": "bathroom",
       "use": "ba",
       "subtype": "together",
       "quality": 7,
@@ -706,17 +709,21 @@
       "has_text_overlay": false,
       "has_person": false,
       "tags": [
-        "home improvement",
+        "bathroom",
+        "renovation",
+        "tile",
+        "fixtures",
+        "remodeling",
+        "interior",
         "before after",
         "comparison",
         "transformation",
         "before after side by side",
         "split view",
-        "contractor portfolio",
-        "home renovation"
+        "contractor portfolio"
       ],
       "caption": "The upper space features a modern kitchen with dark cabinetry and a stylish backsplash, while the lower area displays an older dining setup with mismatched furniture and neutral walls.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 22,
@@ -747,7 +754,7 @@
         "contractor portfolio"
       ],
       "caption": "The image showcases a bathroom renovation with a contrasting before-and-after view. The upper half displays an old space with dark green walls and clutter, while the lower half reveals a modern design featuring light tiles, a glass shower, and updated cabinetry.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 23,
@@ -814,7 +821,7 @@
     {
       "id": 25,
       "path": "bathroom/ba/bathroom_ba_together_021.jpg",
-      "niche": "unknown",
+      "niche": "bathroom",
       "use": "ba",
       "subtype": "together",
       "quality": 8,
@@ -826,14 +833,18 @@
       "has_text_overlay": false,
       "has_person": false,
       "tags": [
-        "home improvement",
+        "bathroom",
+        "renovation",
+        "tile",
+        "fixtures",
+        "remodeling",
+        "interior",
         "before after",
         "comparison",
         "transformation",
         "before after side by side",
         "split view",
-        "contractor portfolio",
-        "home renovation"
+        "contractor portfolio"
       ],
       "caption": "The photo displays a side-by-side comparison of a kitchen renovation: the left side features warm wood cabinetry and outdated appliances, while the right showcases modern dark cabinetry and sleek white countertops.",
       "split": "train"
@@ -1084,7 +1095,7 @@
         "contractor portfolio"
       ],
       "caption": "This image shows a side-by-side comparison of two bathrooms; on the left, a dated purple-walled space with a simple vanity, and on the right, a contemporary design featuring wooden cabinetry and patterned flooring.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 34,
@@ -1177,7 +1188,7 @@
         "contractor portfolio"
       ],
       "caption": "This image showcases a bathroom transformation featuring an old tub and shower setup on the left, contrasted with a modern walk-in shower on the right, highlighting sleek tiles and contemporary fixtures.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 37,
@@ -1332,7 +1343,7 @@
         "contractor portfolio"
       ],
       "caption": "The left side showcases an outdated bathroom with a glass shower and beige walls, while the right displays a modern walk-in shower with sleek tiles and a large window, reflecting a significant upgrade in design.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 42,
@@ -1425,7 +1436,7 @@
         "contractor portfolio"
       ],
       "caption": "The left side shows an older bathroom with a simple design and storage space, while the right side presents a modernized area featuring a sleek vanity with a well-lit mirror and contemporary finishes.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 45,
@@ -1456,7 +1467,7 @@
         "contractor portfolio"
       ],
       "caption": "The left side showcases a dated bathroom with divided areas and dark tile, while the right side reveals a modern, airy design featuring large-format porcelain tiles and a sleek vanity.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 46,
@@ -1549,7 +1560,7 @@
         "contractor portfolio"
       ],
       "caption": "The left side shows an old bathroom with a dated tub and pull-down showerhead, while the right side features a modern walk-in shower with stylish tiles and sleek fixtures.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 49,
@@ -1642,7 +1653,7 @@
         "contractor portfolio"
       ],
       "caption": "The photo shows a transformation from a traditional shower with beige tiles to a modern walk-in shower featuring large-format porcelain tiles and sleek black fixtures.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 52,
@@ -1704,7 +1715,7 @@
         "contractor portfolio"
       ],
       "caption": "The photo shows a side-by-side comparison of a bathroom before and after renovation. The left side features an outdated design with a traditional tub and shower, while the right side showcases a modern, sleek space with a freestanding tub and an elegant shower setup.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 54,
@@ -1797,7 +1808,7 @@
         "home renovation"
       ],
       "caption": "This modern bathroom features a sleek walk-in shower with glass doors, a stylish vanity with a circular sink, and neutral-toned tiles on both the floor and walls, creating a bright and spacious appearance.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 57,
@@ -1921,7 +1932,7 @@
         "contractor portfolio"
       ],
       "caption": "The left side shows an older bathroom with cracked tiles and a shower-tub combo, while the right side features a modern bathroom with large white tiles, a sleek shower enclosure, and a stylish vanity.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 61,
@@ -2045,7 +2056,7 @@
         "contractor portfolio"
       ],
       "caption": "The photo compares an outdated bathroom with a small shower and toilet to a modern renovation featuring a spacious walk-in shower and a freestanding tub, showcasing elegant marble tiles and contemporary lighting.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 65,
@@ -2169,7 +2180,7 @@
         "home renovation"
       ],
       "caption": "A modern bathroom featuring large-format porcelain tiles, a walk-in shower with clear glass panels, and a sleek vanity. The design combines neutral tones with a vibrant green towel for a refreshing look.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 69,
@@ -2200,7 +2211,7 @@
         "home renovation"
       ],
       "caption": "This modern bathroom features a sleek, freestanding tub alongside a stylish vessel sink, accented by grey stone countertops and warm wood cabinetry. The walk-in shower showcases textured tiles, creating an inviting and luxurious space.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 70,
@@ -2293,7 +2304,7 @@
         "home renovation"
       ],
       "caption": "A modern bathroom sink area featuring a minimalist design with marble backsplash, sleek faucet, and neatly arranged towels on a wooden tray.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 73,
@@ -2355,7 +2366,7 @@
         "home renovation"
       ],
       "caption": "This modern bathroom features a large freestanding tub and a walk-in shower with sleek gray tiles, complemented by ample natural light from the nearby window and skylight.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 75,
@@ -2417,7 +2428,7 @@
         "home renovation"
       ],
       "caption": "This modern bathroom features a sleek walk-in shower with glass walls, a freestanding tub, and elegant marble tile accents, creating a luxurious and spacious feel.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 77,
@@ -2453,7 +2464,7 @@
     {
       "id": 78,
       "path": "bathroom/hero/bathroom_hero_result_011.jpg",
-      "niche": "unknown",
+      "niche": "bathroom",
       "use": "hero",
       "subtype": "result",
       "quality": 8,
@@ -2465,7 +2476,12 @@
       "has_text_overlay": false,
       "has_person": false,
       "tags": [
-        "home improvement",
+        "bathroom",
+        "renovation",
+        "tile",
+        "fixtures",
+        "remodeling",
+        "interior",
         "finished result",
         "showcase",
         "portfolio",
@@ -2727,7 +2743,7 @@
     {
       "id": 87,
       "path": "bathroom/project/bathroom_project_process_006.jpg",
-      "niche": "unknown",
+      "niche": "bathroom",
       "use": "project",
       "subtype": "process",
       "quality": 8,
@@ -2739,7 +2755,12 @@
       "has_text_overlay": false,
       "has_person": false,
       "tags": [
-        "home improvement",
+        "bathroom",
+        "renovation",
+        "tile",
+        "fixtures",
+        "remodeling",
+        "interior",
         "work in progress",
         "installation process",
         "installation in progress",
@@ -2747,7 +2768,7 @@
         "home renovation"
       ],
       "caption": "A paintbrush rests in a gray bucket, set against a smooth, muted gray wall. The composition highlights the tools of the painting process, suggesting an ongoing home improvement project.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 88,
@@ -2870,7 +2891,7 @@
         "home renovation"
       ],
       "caption": "The bathroom features vintage floral wallpaper with a copper sink and wooden vanity, complemented by modern lighting and a decorative archway that adds elegance to the space.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 92,
@@ -2932,7 +2953,7 @@
         "home renovation"
       ],
       "caption": "This spacious bathroom features a freestanding white tub surrounded by elegant marble walls and a glass shower enclosure, creating a luxurious and modern atmosphere.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 94,
@@ -3087,7 +3108,7 @@
         "home renovation"
       ],
       "caption": "This modern bathroom features a sleek tub and shower combination with gold fixtures, complemented by a wooden vanity and stylish wall decor. The clean lines and neutral tones create a sophisticated and inviting atmosphere.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 99,
@@ -3304,7 +3325,7 @@
         "home renovation"
       ],
       "caption": "This modern bathroom features a wooden accent wall, a white double vanity, and a spacious glass shower. The large windows allow natural light to fill the space, highlighting the elegant materials used.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 106,
@@ -3552,7 +3573,7 @@
         "home renovation"
       ],
       "caption": "This photo showcases a floor renovation in progress, with one section revealing freshly applied wood stain and another section showing the completed deep reddish-brown hardwood floor. The transition highlights the contrast between the unfinished and finished areas.",
-      "split": "val"
+      "split": "test"
     },
     {
       "id": 114,
@@ -3711,7 +3732,7 @@
     {
       "id": 119,
       "path": "flooring/ba/flooring_ba_together_013.jpg",
-      "niche": "unknown",
+      "niche": "flooring",
       "use": "ba",
       "subtype": "together",
       "quality": 8,
@@ -3723,7 +3744,11 @@
       "has_text_overlay": false,
       "has_person": false,
       "tags": [
-        "home improvement",
+        "flooring",
+        "hardwood",
+        "tile",
+        "installation",
+        "floor renovation",
         "before after",
         "comparison",
         "transformation",
@@ -3763,12 +3788,12 @@
         "home renovation"
       ],
       "caption": "This modern interior features a seamless blend of hardwood flooring and white shiplap walls, creating a warm and inviting space. The unique wooden door adds a touch of elegance, highlighting the stylish design of the area.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 121,
       "path": "flooring/ba/flooring_ba_together_015.jpg",
-      "niche": "unknown",
+      "niche": "flooring",
       "use": "ba",
       "subtype": "together",
       "quality": 8,
@@ -3780,7 +3805,11 @@
       "has_text_overlay": false,
       "has_person": false,
       "tags": [
-        "home improvement",
+        "flooring",
+        "hardwood",
+        "tile",
+        "installation",
+        "floor renovation",
         "before after",
         "comparison",
         "transformation",
@@ -3821,7 +3850,7 @@
         "home renovation"
       ],
       "caption": "The left side displays old, cracked tiles with a beige tone, while the right showcases a modern, herringbone-patterned floor in cool gray tones.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 123,
@@ -3852,7 +3881,7 @@
         "home renovation"
       ],
       "caption": "The left side shows an old, worn-out parquet floor, while the right side features a new, modern laminate flooring with a warm wood finish.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 124,
@@ -3945,7 +3974,7 @@
         "contractor portfolio"
       ],
       "caption": "The bathroom features a new beige linoleum floor with a textured pattern, complementing the dark cabinetry and white fixtures. The space is well-lit, showcasing the modern look of the completed renovation.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 127,
@@ -4257,7 +4286,7 @@
     {
       "id": 137,
       "path": "flooring/hero/flooring_hero_worker_002.jpg",
-      "niche": "unknown",
+      "niche": "flooring",
       "use": "hero",
       "subtype": "worker",
       "quality": 7,
@@ -4269,15 +4298,18 @@
       "has_text_overlay": false,
       "has_person": true,
       "tags": [
-        "home improvement",
+        "flooring",
+        "hardwood",
+        "tile",
+        "installation",
+        "floor renovation",
         "finished result",
         "showcase",
         "portfolio",
         "contractor",
         "professional worker",
         "contractor portfolio",
-        "home renovation",
-        "worker shown"
+        "home renovation"
       ],
       "caption": "A person is kneeling on a wooden floor, using a drill to work on a piece of wood, with a tool box and wooden ladder in the background, indicating an active home improvement project.",
       "split": "train"
@@ -4492,7 +4524,7 @@
         "worker shown"
       ],
       "caption": "A person is carefully installing laminate flooring using spacers, with various wooden planks laid out and some tools visible. The hands are gloved, indicating attention to detail in the flooring process.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 145,
@@ -4552,7 +4584,7 @@
         "home renovation"
       ],
       "caption": "A stylish living room featuring a light beige sofa, decorative cushions, and a wooden coffee table. The herringbone patterned flooring adds warmth, complemented by large windows dressed with sheer and rich brown curtains.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 147,
@@ -4852,7 +4884,7 @@
         "home renovation"
       ],
       "caption": "The photo showcases a modern living space with light-colored wood-style flooring, complemented by a staircase and a well-lit open area featuring neutral-toned walls and furniture.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 157,
@@ -4914,7 +4946,7 @@
         "home renovation"
       ],
       "caption": "This spacious bathroom features a freestanding bathtub centered between large windows, with elegant white cabinetry and marble flooring creating a bright and luxurious atmosphere.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 159,
@@ -4975,7 +5007,7 @@
         "home renovation"
       ],
       "caption": "This photo shows a newly installed light wood laminate floor in an unfinished room with neutral-colored walls and modern trim, highlighting the clean lines and warm tones of the flooring.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 161,
@@ -5066,7 +5098,7 @@
         "home renovation"
       ],
       "caption": "The spacious living area features polished hardwood floors, a modern grey couch with decorative pillows, and a cozy fireplace surrounded by a brick wall, illuminated by natural light filtering through sheer curtains.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 164,
@@ -5128,7 +5160,7 @@
         "home renovation"
       ],
       "caption": "This modern bathroom features a blend of gray and wood tones, including a stylish vanity with dual sinks, a contemporary toilet, and a walk-in shower with wooden accent tiles, creating a sleek and inviting space.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 166,
@@ -5283,7 +5315,7 @@
         "contractor portfolio"
       ],
       "caption": "A comparison of two drainage pipes: the left shows a buildup of tangled material, while the right is clean and clear, indicating improved drainage.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 171,
@@ -5500,7 +5532,7 @@
         "contractor portfolio"
       ],
       "caption": "The left side shows a cluttered and dirty duct space filled with debris, while the right side reveals a clean and empty duct, showcasing the transformation from disarray to tidiness.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 178,
@@ -5630,8 +5662,8 @@
       "id": 182,
       "path": "HVAC/ba/set-001_4files/hvac_ba_after_002.jpg",
       "niche": "hvac",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "after",
       "quality": 5,
       "width": 1024,
       "height": 768,
@@ -5647,11 +5679,15 @@
         "installation",
         "equipment",
         "ductwork",
-        "contractor portfolio",
-        "home renovation"
+        "before after",
+        "comparison",
+        "transformation",
+        "after renovation",
+        "completed work",
+        "contractor portfolio"
       ],
       "caption": "The image features a metallic mesh panel with a textural surface, likely used in an HVAC application, displaying a mix of reflective and shadowy areas.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 183,
@@ -5713,14 +5749,14 @@
         "contractor portfolio"
       ],
       "caption": "A worn, textured HVAC filter sits against a plain background, showing significant dust accumulation and wear, indicating it is in need of replacement.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 185,
       "path": "HVAC/ba/set-002_4files/hvac_ba_before_003.jpg",
       "niche": "hvac",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 7,
       "width": 768,
       "height": 1024,
@@ -5736,8 +5772,12 @@
         "installation",
         "equipment",
         "ductwork",
-        "contractor portfolio",
-        "home renovation"
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
+        "contractor portfolio"
       ],
       "caption": "A well-maintained air conditioning unit is positioned in a corner with vibrant, green and multicolored foliage in the foreground, showing a clean and organized outdoor space.",
       "split": "val"
@@ -5746,8 +5786,8 @@
       "id": 186,
       "path": "HVAC/ba/set-002_4files/hvac_ba_before_004.jpg",
       "niche": "hvac",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 7,
       "width": 768,
       "height": 1024,
@@ -5763,11 +5803,15 @@
         "installation",
         "equipment",
         "ductwork",
-        "contractor portfolio",
-        "home renovation"
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
+        "contractor portfolio"
       ],
       "caption": "This image shows an outdoor HVAC unit positioned on a concrete pad next to a wall, with visible electrical and drainage connections in place. The unit is in good condition, and the surrounding area is clear of debris.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 187,
@@ -5858,7 +5902,7 @@
         "contractor portfolio"
       ],
       "caption": "The image shows a before-and-after comparison of a dryer duct; on the left, it is clogged with lint buildup, while the right displays a clean, smooth duct interior.",
-      "split": "test"
+      "split": "val"
     },
     {
       "id": 190,
@@ -6106,7 +6150,7 @@
         "contractor portfolio"
       ],
       "caption": "Three technicians in safety gear are installing an air conditioning unit outside a building, showcasing teamwork and attention to detail in a professional setting.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 198,
@@ -6137,7 +6181,7 @@
         "contractor portfolio"
       ],
       "caption": "A technician in a blue uniform is performing maintenance on a wall-mounted air conditioning unit, adjusting its inner panel. The setting features a clean, neutral wall background.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 199,
@@ -6168,7 +6212,7 @@
         "contractor portfolio"
       ],
       "caption": "A technician in a blue uniform and hard hat works on an air conditioning unit mounted on a wall, using a drill and focused on the installation process.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 200,
@@ -6230,7 +6274,7 @@
         "contractor portfolio"
       ],
       "caption": "An HVAC technician is actively working on a wall-mounted air conditioning unit, equipped with tools and focused on the maintenance task. The bright colors of the technician's clothing contrast with the white wall and the AC unit.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 202,
@@ -6323,7 +6367,7 @@
         "contractor portfolio"
       ],
       "caption": "A technician, wearing a white hard hat and a denim jacket, is installing an air conditioning unit on the wall. The unit is modern, with sleek design and metallic grilles.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 205,
@@ -6478,7 +6522,7 @@
         "contractor portfolio"
       ],
       "caption": "A technician installs an air conditioning unit on a yellow wall using a ladder, showcasing the working process in a residential setting.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 210,
@@ -6726,7 +6770,7 @@
         "contractor portfolio"
       ],
       "caption": "A technician wearing a hard hat and gloves is installing an air conditioning unit on the ceiling, showcasing a clean and modern office space around him.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 218,
@@ -6819,7 +6863,7 @@
         "worker shown"
       ],
       "caption": "Two HVAC technicians stand beside a newly installed air conditioning unit in a residential backyard. The unit is positioned on a concrete pad, surrounded by trees and a brick wall.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 221,
@@ -6850,7 +6894,7 @@
         "home renovation"
       ],
       "caption": "Two HVAC units are positioned next to a brick wall, connected by pipes, with a control box mounted above them. The area is surrounded by fallen leaves and shows well-maintained equipment in an outdoor setting.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 222,
@@ -6881,7 +6925,7 @@
         "home renovation"
       ],
       "caption": "Three HVAC units are installed on a stone and gravel base against a brick wall, surrounded by pine needles and leaves. The units are in good condition, presenting a clean and organized outdoor setup.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 223,
@@ -7005,7 +7049,7 @@
         "home renovation"
       ],
       "caption": "Two modern HVAC units with a gray finish are placed side by side on a concrete slab, positioned against a brick wall with a rustic appearance. The surrounding area is covered in small gravel and bordered by smooth stones.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 227,
@@ -7222,7 +7266,7 @@
         "home renovation"
       ],
       "caption": "A close-up of a modern dome security camera mounted on a textured surface, showcasing its sleek design and dark lens. The overall color scheme includes white and subtle yellow tones highlighting the camera.",
-      "split": "test"
+      "split": "val"
     },
     {
       "id": 234,
@@ -7284,7 +7328,7 @@
         "home renovation"
       ],
       "caption": "The image features a close-up of security cameras mounted on a white beam, set against a dark grid ceiling. The cameras have a sleek design and are positioned for optimal surveillance.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 236,
@@ -7408,7 +7452,7 @@
         "home renovation"
       ],
       "caption": "A high-definition security camera is mounted on the ceiling, showcasing a sleek white design that blends seamlessly with the industrial interior surroundings.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 240,
@@ -7439,7 +7483,7 @@
         "home renovation"
       ],
       "caption": "A sleek, silver security camera mounted on a metal bracket against a clear blue sky, designed for monitoring and surveillance.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 241,
@@ -7563,7 +7607,7 @@
         "home renovation"
       ],
       "caption": "A set of three security cameras mounted on a white wall, including one black camera positioned above two white cameras. The installation appears clean and professional, suitable for surveillance purposes.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 245,
@@ -7628,9 +7672,9 @@
     {
       "id": 247,
       "path": "security/hero/security_hero_team_001.jpg",
-      "niche": "unknown",
-      "use": "unknown",
-      "subtype": "unknown",
+      "niche": "security",
+      "use": "hero",
+      "subtype": "team",
       "quality": 7,
       "width": 8000,
       "height": 5333,
@@ -7640,13 +7684,21 @@
       "has_text_overlay": false,
       "has_person": true,
       "tags": [
-        "home improvement",
+        "security",
+        "camera",
+        "surveillance",
+        "installation",
+        "smart home",
+        "finished result",
+        "showcase",
+        "portfolio",
+        "crew",
+        "team photo",
         "contractor portfolio",
-        "home renovation",
-        "worker shown"
+        "home renovation"
       ],
       "caption": "A person is holding a tablet that displays a photo of a well-decorated living room featuring a dining table, plants, and soft furnishings. The room is bright and airy, with a vibrant yellow pendant light adding a pop of color.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 248,
@@ -7775,7 +7827,7 @@
     {
       "id": 252,
       "path": "security/hero/security_hero_worker_005.jpg",
-      "niche": "unknown",
+      "niche": "security",
       "use": "hero",
       "subtype": "worker",
       "quality": 8,
@@ -7787,15 +7839,18 @@
       "has_text_overlay": false,
       "has_person": true,
       "tags": [
-        "home improvement",
+        "security",
+        "camera",
+        "surveillance",
+        "installation",
+        "smart home",
         "finished result",
         "showcase",
         "portfolio",
         "contractor",
         "professional worker",
         "contractor portfolio",
-        "home renovation",
-        "worker shown"
+        "home renovation"
       ],
       "caption": "A man is installing equipment in the ceiling while standing on a scaffold. He is dressed in a blue shirt and work pants, utilizing a power drill in a bright, airy room with white brick walls.",
       "split": "train"
@@ -7803,7 +7858,7 @@
     {
       "id": 253,
       "path": "security/hero/security_hero_worker_006.jpg",
-      "niche": "unknown",
+      "niche": "security",
       "use": "project",
       "subtype": "process",
       "quality": 8,
@@ -7815,7 +7870,11 @@
       "has_text_overlay": false,
       "has_person": true,
       "tags": [
-        "home improvement",
+        "security",
+        "camera",
+        "surveillance",
+        "installation",
+        "smart home",
         "work in progress",
         "installation process",
         "installation in progress",
@@ -7824,7 +7883,7 @@
         "worker shown"
       ],
       "caption": "A person is using a cordless drill to install an outdoor light fixture on a house wall. The setting shows a ladder and a well-maintained exterior home surface.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 254,
@@ -7855,7 +7914,7 @@
         "home renovation"
       ],
       "caption": "A security personnel is monitoring multiple surveillance screens displaying various indoor spaces. The operator appears focused, using a walkie-talkie, set against a neutral backdrop.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 255,
@@ -7886,7 +7945,7 @@
         "home renovation"
       ],
       "caption": "A technician in a hard hat is installing a security camera on the exterior wall of a modern house. The setting features a clean and well-lit environment with palm trees in the background.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 256,
@@ -7948,7 +8007,7 @@
         "home renovation"
       ],
       "caption": "A technician in an orange shirt installs a security camera on a textured black wall, demonstrating a home security upgrade.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 258,
@@ -8041,7 +8100,7 @@
         "contractor portfolio"
       ],
       "caption": "This modern bathroom features a sleek walk-in shower with a glass enclosure, a stylish vessel sink, and a wooden vanity. The neutral tones create a bright and inviting atmosphere.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 261,
@@ -8165,7 +8224,7 @@
         "contractor portfolio"
       ],
       "caption": "The image showcases a modern bathroom with a walk-in shower featuring a glass door, light-colored tiles, and a wooden vanity. The sleek design and clean lines create an inviting and contemporary space.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 265,
@@ -8233,8 +8292,8 @@
       "id": 267,
       "path": "shower/ba/shower_ba_before_003.jpg",
       "niche": "bathroom",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 7,
       "width": 1536,
       "height": 2048,
@@ -8250,8 +8309,12 @@
         "fixtures",
         "remodeling",
         "interior",
-        "contractor portfolio",
-        "home renovation"
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
+        "contractor portfolio"
       ],
       "caption": "The photo showcases a small bathroom featuring a bathtub, a blue patterned shower curtain, and a sink with a countertop, highlighted by natural light streaming through a window.",
       "split": "train"
@@ -8285,7 +8348,7 @@
         "contractor portfolio"
       ],
       "caption": "The bathroom features a light-colored countertop with a round sink, a pink towel hanging, and a shower area with transparent curtains, indicating a standard pre-renovation state.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 269,
@@ -8347,7 +8410,7 @@
         "contractor portfolio"
       ],
       "caption": "This image showcases a bathroom renovation with a former outdated space featuring a shower and jacuzzi tub updated to a sleek, modern design with a freestanding tub and glass shower enclosure.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 271,
@@ -8409,7 +8472,7 @@
         "contractor portfolio"
       ],
       "caption": "This photo shows a bathroom renovation featuring a traditional tub and shower combination on the left, transitioning to a modern walk-in shower with glass doors on the right.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 273,
@@ -8440,7 +8503,7 @@
         "contractor portfolio"
       ],
       "caption": "The image shows a bathroom's transformation from an enclosed shower with glass doors to a modern walk-in shower featuring sleek marble walls and gray stone flooring.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 274,
@@ -8533,7 +8596,7 @@
         "contractor portfolio"
       ],
       "caption": "A bathroom renovation showcasing a transition from a walk-in tub with dated decor to a modern walk-in shower with large-format porcelain tiles and built-in shelving.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 277,
@@ -8564,7 +8627,7 @@
         "contractor portfolio"
       ],
       "caption": "The left side shows an older shower tub combo with a framed shower, while the right side features a sleek, modern walk-in shower with a glass enclosure and minimalist design.",
-      "split": "val"
+      "split": "test"
     },
     {
       "id": 278,
@@ -8626,7 +8689,7 @@
         "contractor portfolio"
       ],
       "caption": "The left side shows a dated bathroom with a bathtub and tile walls, while the right side features a modern, sleek walk-in shower with a contemporary design and a seamless glass enclosure.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 280,
@@ -8657,7 +8720,7 @@
         "contractor portfolio"
       ],
       "caption": "The left side features a traditional tub with a curtain and rustic tiles, while the right side showcases a modern walk-in shower with glass doors and sleek grey tiles.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 281,
@@ -8719,7 +8782,7 @@
         "home renovation"
       ],
       "caption": "This modern bathroom features a stylish green tile accent wall, a minimalist wooden vanity, and a sleek round mirror above a white basin, showcasing a harmonious blend of materials and colors.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 283,
@@ -8750,7 +8813,7 @@
         "home renovation"
       ],
       "caption": "This modern bathroom features a glass walk-in shower with sleek fixtures, a freestanding tub, and minimalistic decor, creating a bright and spacious environment.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 284,
@@ -8905,7 +8968,7 @@
         "contractor portfolio"
       ],
       "caption": "A skilled worker is installing a shower door in a modern bathroom, showcasing sleek glass and clean lines in the design. The worker is focused, wearing gloves and a cap, and tools are visible on his belt.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 289,
@@ -8998,7 +9061,7 @@
         "home renovation"
       ],
       "caption": "The photo showcases a modern walk-in shower with dark teal herringbone tiles and a gray stone bench, emphasizing its sleek design and sophisticated color palette.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 292,
@@ -9122,7 +9185,7 @@
         "home renovation"
       ],
       "caption": "This walk-in shower features sleek light-colored marble tiles with a hexagonal patterned floor, creating a modern and spacious feel. An open niche provides convenient storage for toiletries.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 296,
@@ -9308,7 +9371,7 @@
         "home renovation"
       ],
       "caption": "A modern bathroom featuring a wooden vanity with a circular mirror, a glass walk-in shower, and a woven storage basket, capturing a bright and airy atmosphere.",
-      "split": "test"
+      "split": "val"
     },
     {
       "id": 302,
@@ -9339,7 +9402,7 @@
         "home renovation"
       ],
       "caption": "This modern bathroom features a spacious walk-in shower with a sleek glass enclosure, a minimalist wood vanity, and a stylish bowl sink. The neutral color palette and contemporary design create a serene atmosphere.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 303,
@@ -9525,7 +9588,7 @@
         "home renovation"
       ],
       "caption": "The bathroom features a sleek design with gray tiles, a modern walk-in shower, and a stylish wooden vanity with a rectangular sink. The space is well-lit, showcasing the contemporary finishes and clean lines.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 309,
@@ -9587,7 +9650,7 @@
         "home renovation"
       ],
       "caption": "The image showcases a spacious walk-in shower with glass enclosures and modern fixtures, accompanied by a neatly organized shoe storage area visible in the adjacent room.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 311,
@@ -9618,7 +9681,7 @@
         "home renovation"
       ],
       "caption": "This walk-in shower features beige tiles with a smooth finish and a built-in niche for toiletries. The spacious design and clear glass door create an open, inviting feel.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 312,
@@ -9649,7 +9712,7 @@
         "home renovation"
       ],
       "caption": "This walk-in shower features elegant stone tiles with a patterned detail, a pebble stone floor, and a glass enclosure, creating a modern and inviting space.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 313,
@@ -9804,7 +9867,7 @@
         "home renovation"
       ],
       "caption": "This spacious bathroom features a large soaking tub beside a glass-enclosed walk-in shower, complemented by a stylish tile border and a bright window that enhances the natural light.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 318,
@@ -10080,7 +10143,7 @@
         "home renovation"
       ],
       "caption": "This home features a striking modern facade with black stone siding that creates a bold contrast against the light-colored entrance. The elegant double doors and well-maintained landscaping emphasize the fresh and updated appearance of the property.",
-      "split": "val"
+      "split": "test"
     },
     {
       "id": 327,
@@ -10136,7 +10199,7 @@
         "home renovation"
       ],
       "caption": "The home features a newly renovated facade with blue siding and white trim, creating a modern yet classic appearance. The inviting porch adds curb appeal with its well-maintained landscaping.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 329,
@@ -10292,8 +10355,8 @@
       "id": 334,
       "path": "siding/ba/siding_ba_before_002.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 8,
       "width": 960,
       "height": 768,
@@ -10308,6 +10371,11 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
@@ -10342,7 +10410,7 @@
         "worker shown"
       ],
       "caption": "The photo shows a home with a mix of brick and vinyl siding, where a worker is performing installation or repair work on the siding, surrounded by a well-maintained lawn and landscaping.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 336,
@@ -10379,8 +10447,8 @@
       "id": 337,
       "path": "siding/ba/siding_ba_before_005.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 7,
       "width": 1024,
       "height": 768,
@@ -10395,18 +10463,23 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
       "caption": "This photo showcases a two-story house featuring a stone lower level and a beige upper level with wooden accents. The surrounding area has fallen leaves, indicating an outdoor setting in autumn.",
-      "split": "test"
+      "split": "val"
     },
     {
       "id": 338,
       "path": "siding/ba/siding_ba_before_006.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 7,
       "width": 1024,
       "height": 768,
@@ -10421,6 +10494,11 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
@@ -10462,8 +10540,8 @@
       "id": 340,
       "path": "siding/ba/siding_ba_before_008.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 7,
       "width": 1024,
       "height": 768,
@@ -10478,6 +10556,11 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
@@ -10575,7 +10658,7 @@
         "home renovation"
       ],
       "caption": "This home features a mix of brick and vinyl siding with a symmetrical design and a neatly manicured lawn, showing typical exterior conditions of a suburban property.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 344,
@@ -10612,8 +10695,8 @@
       "id": 345,
       "path": "siding/ba/siding_ba_before_013.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 7,
       "width": 1024,
       "height": 768,
@@ -10628,6 +10711,11 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
@@ -10638,8 +10726,8 @@
       "id": 346,
       "path": "siding/ba/siding_ba_before_014.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 7,
       "width": 1024,
       "height": 768,
@@ -10654,18 +10742,23 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
       "caption": "The photo depicts a modern two-story house with a white exterior and a red metal roof, featuring a paved patio area with a dining set and a hot tub, surrounded by green trees.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 347,
       "path": "siding/ba/siding_ba_before_015.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 8,
       "width": 1024,
       "height": 768,
@@ -10680,18 +10773,23 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
       "caption": "This charming two-story house features white exterior siding with turquoise shutters and a decorative window. The front porch includes a wide staircase leading up to the entrance, surrounded by seasonal foliage.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 348,
       "path": "siding/ba/siding_ba_before_016.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 7,
       "width": 1024,
       "height": 768,
@@ -10706,11 +10804,16 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
       "caption": "The photo showcases a well-maintained, two-story home with light beige siding and black shutters, featuring a charming entryway with a white portico and a decorative gable above.",
-      "split": "test"
+      "split": "val"
     },
     {
       "id": 349,
@@ -10741,7 +10844,7 @@
         "home renovation"
       ],
       "caption": "The house features a combination of grey and white siding, showcasing a well-maintained exterior. The exterior sections exhibit a modern design with a mix of horizontal and vertical elements, reflecting a recent renovation.",
-      "split": "val"
+      "split": "test"
     },
     {
       "id": 350,
@@ -10808,8 +10911,8 @@
       "id": 352,
       "path": "siding/ba/siding_ba_before_020.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 8,
       "width": 1152,
       "height": 768,
@@ -10824,18 +10927,23 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
       "caption": "A modern multi-story house featuring a combination of light-colored siding and stone accents, with multiple balconies and a symmetrical design. The property is set against a cloudy sky, showcasing an appealing curb appeal.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 353,
       "path": "siding/ba/siding_ba_before_021.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 8,
       "width": 1024,
       "height": 768,
@@ -10850,6 +10958,11 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
@@ -10860,8 +10973,8 @@
       "id": 354,
       "path": "siding/ba/siding_ba_before_022.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "before",
       "quality": 8,
       "width": 1024,
       "height": 576,
@@ -10876,6 +10989,11 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before renovation",
+        "original state",
         "contractor portfolio",
         "home renovation"
       ],
@@ -10911,7 +11029,7 @@
         "home renovation"
       ],
       "caption": "The exterior of the home features beige siding with dark green trees around it, while the patio includes comfortable seating and a basketball hoop, showcasing a well-maintained family space.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 356,
@@ -10942,7 +11060,7 @@
         "home renovation"
       ],
       "caption": "A modern house featuring light grey siding with large windows and a stylish front door, surrounded by autumn foliage, showcasing a person coming down the steps.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 357,
@@ -11035,14 +11153,14 @@
         "home renovation"
       ],
       "caption": "The house features a smooth white siding with a brick element, complemented by string lights and a well-kept outdoor area with stacked chairs, creating a cozy atmosphere.",
-      "split": "train"
+      "split": "test"
     },
     {
       "id": 360,
       "path": "siding/ba/siding_ba_together_006.jpg",
       "niche": "siding",
-      "use": "unknown",
-      "subtype": "unknown",
+      "use": "ba",
+      "subtype": "together",
       "quality": 8,
       "width": 1152,
       "height": 768,
@@ -11057,6 +11175,11 @@
         "house",
         "cladding",
         "curb appeal",
+        "before after",
+        "comparison",
+        "transformation",
+        "before after side by side",
+        "split view",
         "contractor portfolio",
         "home renovation"
       ],
@@ -11338,7 +11461,7 @@
         "home renovation"
       ],
       "caption": "This home features modern siding with large windows and a spacious deck, set against a clear blue sky and natural surroundings. The clean lines and fresh design highlight the contemporary style of the house.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 370,
@@ -11398,7 +11521,7 @@
         "home renovation"
       ],
       "caption": "This modern home features a beige vinyl siding exterior with large windows and a spacious deck. The building is set against a clear blue sky, emphasizing its contemporary design.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 372,
@@ -11458,7 +11581,7 @@
         "home renovation"
       ],
       "caption": "This photo showcases a stylish single-story home with a beige board and batten siding, complemented by wooden shutters and a well-maintained landscape featuring green grass and shrubbery.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 374,
@@ -11488,7 +11611,7 @@
         "home renovation"
       ],
       "caption": "This modern home showcases a blend of light tan siding and natural stone accents, with large windows and a stylish garage door, set against a backdrop of a chilly, partially snowy landscape.",
-      "split": "test"
+      "split": "train"
     },
     {
       "id": 375,
@@ -11518,7 +11641,7 @@
         "home renovation"
       ],
       "caption": "This photo showcases a stylish home with a blend of beige siding and red brick accents, nestled among lush greenery. The well-manicured lawn and inviting entrance highlight the home's charm.",
-      "split": "train"
+      "split": "val"
     },
     {
       "id": 376,
@@ -11578,7 +11701,7 @@
         "home renovation"
       ],
       "caption": "This photo showcases a two-toned house exterior featuring a combination of brick and light-colored siding, with decorative shutters and small American flags enhancing the curb appeal.",
-      "split": "val"
+      "split": "train"
     },
     {
       "id": 378,
@@ -11847,7 +11970,7 @@
         "home renovation"
       ],
       "caption": "The house features blue vinyl siding with a prominent brick chimney, a well-maintained front yard, and a sidewalk leading to the entrance, showcasing a clean and modern exterior.",
-      "split": "val"
+      "split": "train"
     }
   ]
 }
