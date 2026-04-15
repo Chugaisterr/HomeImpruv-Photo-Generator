@@ -292,8 +292,8 @@ def print_summary(results: list[dict]) -> None:
     print(f"{'='*50}")
     print(f"  Errors:          {errors}")
     print(f"  Has caption:     {with_caption} / {total}")
-    print(f"  Has text/logo:   {with_text}  ← needs text removal")
-    print(f"  Needs upscale:   {need_upscale}  ← min side < {MIN_UPSCALE_PX}px")
+    print(f"  Has text/logo:   {with_text}  (needs text removal)")
+    print(f"  Needs upscale:   {need_upscale}  (min side < {MIN_UPSCALE_PX}px)")
     print(f"  Has person:      {with_person}")
 
     by_niche: dict[str, int] = {}
