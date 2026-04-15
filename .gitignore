@@ -20,10 +20,10 @@ generated/**/*.webp
 fonts/primary/*.ttf
 fonts/secondary/*.ttf
 
-# Media library — binary images, not tracked in git
-Media/
+# Temp processing folders — not tracked
 Media_norm/
 Media_enhanced/
+Media_text_removed/
 Media_backup*/
 public/
 reviews.json
