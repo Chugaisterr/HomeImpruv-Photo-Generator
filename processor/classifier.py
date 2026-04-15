@@ -34,7 +34,7 @@ IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".bmp", ".tiff"}
 MIN_UPSCALE_PX = 1920
 
 CLASSIFICATION_PROMPT = """\
-Analyze this home improvement photo and classify it. Return ONLY valid JSON — no markdown, no explanation.
+Analyze this home improvement photo. Return ONLY valid JSON — no markdown, no explanation.
 
 Required JSON structure:
 {
@@ -45,7 +45,8 @@ Required JSON structure:
   "has_person": <true or false>,
   "quality_score": <integer 1-10>,
   "issues": [<array of: watermark | low_res | bad_lighting | blurry | cropped | irrelevant | duplicate_format>],
-  "confidence": <float 0.0-1.0>
+  "confidence": <float 0.0-1.0>,
+  "caption": "<unique 1-2 sentence description of THIS specific photo for AI training>"
 }
 
 Subtype rules:
@@ -63,6 +64,13 @@ Niche reference:
 - security: security cameras, CCTV, smart home security, alarm systems
 
 Quality score guide: 1=unusable, 4=below avg, 6=usable, 8=good portfolio, 10=hero-worthy
+
+Caption rules:
+- Describe what is VISUALLY present in THIS specific photo (colors, materials, condition, composition)
+- If before/after: mention both states ("old cracked tiles → modern large-format porcelain")
+- If hero/result: describe the finished space or equipment shown
+- Do NOT use generic phrases like "professional renovation" — be specific to what you see
+- 1-2 sentences max, suitable for text-to-image model training
 
 Folder hint: {folder_hint}
 Filename: {filename}
@@ -166,6 +174,7 @@ def classify_one(
         "quality_score": 0,
         "issues": ["classification_failed"],
         "confidence": 0.0,
+        "caption": "",
         **local_info,
     }
 
@@ -276,11 +285,13 @@ def print_summary(results: list[dict]) -> None:
     with_text = sum(1 for r in results if r.get("has_text_overlay"))
     with_person = sum(1 for r in results if r.get("has_person"))
     need_upscale = sum(1 for r in results if r.get("needs_upscale"))
+    with_caption = sum(1 for r in results if r.get("caption"))
 
     print(f"\n{'='*50}")
     print(f"CLASSIFICATION SUMMARY — {total} files")
     print(f"{'='*50}")
     print(f"  Errors:          {errors}")
+    print(f"  Has caption:     {with_caption} / {total}")
     print(f"  Has text/logo:   {with_text}  ← needs text removal")
     print(f"  Needs upscale:   {need_upscale}  ← min side < {MIN_UPSCALE_PX}px")
     print(f"  Has person:      {with_person}")
