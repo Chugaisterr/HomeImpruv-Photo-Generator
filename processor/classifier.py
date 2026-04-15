@@ -5,7 +5,8 @@ For each image in Media/:
   1. Compress to 512px JPEG (saves cost, speeds up requests)
   2. Send to GPT-4o Mini with structured classification prompt
   3. Parse JSON response → classification dict
-  4. Save incremental results to classifications.json (resume-safe)
+  4. Add local fields: needs_upscale (resolution check), width, height, megapixels
+  5. Save incremental results to classifications.json (resume-safe)
 
 Usage:
   python -m processor classify --media-dir Media --output classifications.json
@@ -28,6 +29,9 @@ from clients.openrouter_client import OpenRouterClient
 logger = logging.getLogger(__name__)
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".bmp", ".tiff"}
+
+# Photos with shortest side below this threshold are flagged for AI upscale
+MIN_UPSCALE_PX = 1920
 
 CLASSIFICATION_PROMPT = """\
 Analyze this home improvement photo and classify it. Return ONLY valid JSON — no markdown, no explanation.
@@ -97,6 +101,22 @@ def _parse_response(raw: str) -> dict:
     return json.loads(raw)
 
 
+def _local_image_info(path: Path) -> dict:
+    """Read image dimensions locally (no API). Returns width, height, megapixels, needs_upscale."""
+    try:
+        with Image.open(path) as img:
+            w, h = img.size
+            mp = round(w * h / 1_000_000, 2)
+            return {
+                "width": w,
+                "height": h,
+                "megapixels": mp,
+                "needs_upscale": min(w, h) < MIN_UPSCALE_PX,
+            }
+    except Exception:
+        return {"width": 0, "height": 0, "megapixels": 0.0, "needs_upscale": False}
+
+
 def classify_one(
     client: OpenRouterClient,
     path: Path,
@@ -112,6 +132,9 @@ def classify_one(
         .replace("{filename}", path.name)
     )
 
+    # Always collect local info (free, no API)
+    local_info = _local_image_info(path)
+
     last_error = None
     for attempt in range(retries + 1):
         try:
@@ -120,6 +143,7 @@ def classify_one(
             result = _parse_response(raw)
             result["file"] = str(path.relative_to(media_dir))
             result["folder_hint"] = folder_hint
+            result.update(local_info)
             return result
         except json.JSONDecodeError as e:
             last_error = f"JSON parse error: {e}"
@@ -142,6 +166,7 @@ def classify_one(
         "quality_score": 0,
         "issues": ["classification_failed"],
         "confidence": 0.0,
+        **local_info,
     }
 
 
@@ -250,12 +275,14 @@ def print_summary(results: list[dict]) -> None:
     errors = sum(1 for r in results if "error" in r)
     with_text = sum(1 for r in results if r.get("has_text_overlay"))
     with_person = sum(1 for r in results if r.get("has_person"))
+    need_upscale = sum(1 for r in results if r.get("needs_upscale"))
 
     print(f"\n{'='*50}")
     print(f"CLASSIFICATION SUMMARY — {total} files")
     print(f"{'='*50}")
     print(f"  Errors:          {errors}")
-    print(f"  Has text/logo:   {with_text}")
+    print(f"  Has text/logo:   {with_text}  ← needs text removal")
+    print(f"  Needs upscale:   {need_upscale}  ← min side < {MIN_UPSCALE_PX}px")
     print(f"  Has person:      {with_person}")
 
     by_niche: dict[str, int] = {}
