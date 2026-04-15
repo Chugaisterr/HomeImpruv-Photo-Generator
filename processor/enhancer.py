@@ -226,6 +226,15 @@ def _detect_niche(path: Path, source_dir: Path) -> str:
         return "unknown"
 
 
+def _get_mp(path: Path) -> float:
+    """Return megapixels of image, 0 on error."""
+    try:
+        with Image.open(path) as img:
+            return img.width * img.height / 1_000_000
+    except Exception:
+        return 0.0
+
+
 def enhance_batch(
     source_dir: Path,
     output_dir: Path,
@@ -236,13 +245,16 @@ def enhance_batch(
     norm_quality: int = DEFAULT_QUALITY,
     workers: int = 2,
     resume: bool = True,
+    ai_max_mp: float = 2.0,   # photos BELOW this → AI enhance; above → just normalize
+    ai_only: bool = False,    # if True → skip large photos entirely (no normalize-only)
 ) -> list[dict]:
     """
-    Enhance all images in source_dir → output_dir.
+    Smart batch pipeline for source_dir → output_dir:
 
+    - Photos < ai_max_mp  → AI enhance via model + normalize to 1920x1080
+    - Photos >= ai_max_mp → just normalize to 1920x1080 (no AI cost)
     - Preserves folder structure
-    - resume=True: skip already-enhanced files
-    - workers: parallel threads (keep low — Gemini rate limits)
+    - resume=True: skip already-done files
     """
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
@@ -253,33 +265,72 @@ def enhance_batch(
         logger.warning(f"No images found in {source_dir}")
         return []
 
-    logger.info(f"Found {len(images)} images to enhance → {output_dir}")
-    logger.info(f"Model: {model} | Workers: {workers} | Normalize: {normalize}")
+    # Split: AI vs normalize-only
+    need_ai, just_normalize = [], []
+    for p in images:
+        mp = _get_mp(p)
+        if mp < ai_max_mp:
+            need_ai.append((p, mp))
+        else:
+            just_normalize.append((p, mp))
+
+    logger.info(f"Found {len(images)} images → {output_dir}")
+    logger.info(f"  AI enhance  (<{ai_max_mp}MP): {len(need_ai)} photos  [model: {model}]")
+    if ai_only:
+        logger.info(f"  Skipping (>={ai_max_mp}MP): {len(just_normalize)} photos  [--ai-only mode]")
+        just_normalize = []
+    else:
+        logger.info(f"  Normalize only (>={ai_max_mp}MP): {len(just_normalize)} photos  [free]")
 
     def _dest(path: Path) -> Path:
         rel = path.relative_to(source_dir)
         return output_dir / rel.with_suffix(".jpg")
 
-    # Filter already done (resume)
+    # Resume: skip already done
     if resume:
-        todo = [p for p in images if not _dest(p).exists()]
-        skipped = len(images) - len(todo)
+        need_ai_todo       = [(p, mp) for p, mp in need_ai       if not _dest(p).exists()]
+        just_norm_todo     = [(p, mp) for p, mp in just_normalize if not _dest(p).exists()]
+        skipped = len(images) - len(need_ai_todo) - len(just_norm_todo)
         if skipped:
-            logger.info(f"  Resuming: {skipped} already enhanced, {len(todo)} remaining")
+            logger.info(f"  Resuming: {skipped} already done, {len(need_ai_todo)+len(just_norm_todo)} remaining")
     else:
-        todo = images
-
-    if not todo:
-        logger.info("All images already enhanced.")
-        return [{"source": str(p), "target": str(_dest(p)), "status": "ok"} for p in images]
-
-    client = OpenRouterClient(api_key=api_key)
+        need_ai_todo   = need_ai
+        just_norm_todo = just_normalize
 
     results = []
     done_count = 0
-    total = len(todo)
+    total = len(need_ai_todo) + len(just_norm_todo)
 
-    def _process(path: Path) -> dict:
+    if total == 0:
+        logger.info("All images already processed.")
+        return [{"source": str(p), "target": str(_dest(p)), "status": "ok"} for p in images]
+
+    # ── Step 1: normalize-only (fast, no API) ────────────────────────────────
+    for path, mp in just_norm_todo:
+        dest = _dest(path)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            normalize_image(path, dest, norm_width, norm_height, norm_quality)
+            done_count += 1
+            logger.info(f"  [{done_count}/{total}] NORM {path.name}  ({mp:.1f}MP)")
+            results.append({"source": str(path), "target": str(dest), "status": "ok", "method": "normalize"})
+        except Exception as e:
+            done_count += 1
+            logger.warning(f"  [{done_count}/{total}] NORM_ERR {path.name}: {e}")
+            results.append({"source": str(path), "target": str(dest), "status": "error", "error": str(e)})
+
+    if not need_ai_todo:
+        return results
+
+    # ── Step 2: AI enhance (costs money) ─────────────────────────────────────
+    client = OpenRouterClient(api_key=api_key)
+
+    # don't reset results — keep normalize results from step 1
+    total_ai = len(need_ai_todo)
+    ai_done  = 0
+
+    def _process(path_mp: tuple) -> dict:
+        path, mp = path_mp
         niche = _detect_niche(path, source_dir)
         dest = _dest(path)
         return enhance_image(
@@ -295,25 +346,27 @@ def enhance_batch(
         )
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(_process, p): p for p in todo}
+        futures = {pool.submit(_process, (p, mp)): p for p, mp in need_ai_todo}
         for future in as_completed(futures):
             r = future.result()
-            done_count += 1
+            ai_done += 1
             src_name = Path(r["source"]).name
             status_str = {
-                "ok": "OK",
+                "ok": "AI+OK",
                 "error": f'ERR [{r.get("error","?")}]',
                 "refused": "REFUSED",
             }.get(r["status"], r["status"])
-            logger.info(f"  [{done_count}/{total}] {status_str} {src_name}")
+            logger.info(f"  [{ai_done}/{total_ai}] {status_str} {src_name}")
             results.append(r)
 
     client.close()
 
-    ok = sum(1 for r in results if r["status"] == "ok")
-    err = sum(1 for r in results if r["status"] == "error")
-    refused = sum(1 for r in results if r["status"] == "refused")
-    logger.info(f"\nDone: {ok} enhanced, {err} errors, {refused} refused by safety filter")
+    all_results = results  # includes both normalize and AI results
+    ai_ok   = sum(1 for r in all_results if r["status"] == "ok" and r.get("method") != "normalize")
+    norm_ok = sum(1 for r in all_results if r.get("method") == "normalize")
+    err     = sum(1 for r in all_results if r["status"] == "error")
+    refused = sum(1 for r in all_results if r["status"] == "refused")
+    logger.info(f"\nDone: {ai_ok} AI enhanced, {norm_ok} normalized, {err} errors, {refused} refused")
     return results
 
 

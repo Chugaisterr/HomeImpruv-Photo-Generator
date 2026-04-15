@@ -28,6 +28,9 @@ Media_backup*/
 public/
 reviews.json
 test_enhanced.jpg
+test_compare/
+Media_text_removed/
+dataset_progress.json
 *.mp4
 *.mov
 *.avi

@@ -128,6 +128,8 @@ def cmd_enhance(args):
         norm_quality=args.quality,
         workers=args.workers,
         resume=not args.no_resume,
+        ai_max_mp=args.ai_max_mp,
+        ai_only=args.ai_only,
     )
     print_summary(results)
     print(f"\nEnhanced photos saved to: {output}")
@@ -273,8 +275,16 @@ def main():
         help="JPEG quality (default: 92)",
     )
     p_enh.add_argument(
+        "--ai-max-mp", type=float, default=2.0,
+        help="Photos BELOW this MP → AI enhance. Above → just normalize. (default: 2.0MP)",
+    )
+    p_enh.add_argument(
         "--no-resume", action="store_true",
         help="Re-enhance all files, ignoring existing results",
+    )
+    p_enh.add_argument(
+        "--ai-only", action="store_true",
+        help="Only AI-enhance small photos (<ai-max-mp). Skip large photos entirely.",
     )
     p_enh.set_defaults(func=cmd_enhance)
 
